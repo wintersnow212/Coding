@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>    // std::sort
 using namespace std;
 typedef struct sumIndexPair{
     int prefixsum;
@@ -23,9 +24,9 @@ typedef struct sumIndexPair{
 
 struct myComparator
 {
-    bool operator() (siPair* a, siPair* b)
+    bool operator() (siPair a, siPair b)
     {
-        return (a->prefixsum < b->prefixsum);
+        return (a.prefixsum < b.prefixsum);
     }
 };
 
@@ -34,19 +35,22 @@ int main()
 {
     cout << "Hello World" << endl; 
     vector<int> inputArr = {-3, 1, 1, -3, 5};
-    vector<siPair*> pairs(len+1);
-    // 大错特错 要for loop 每个iteration new allocate
-    //vector<siPair*> pairs(len+1, new pair(0, 0));
-    //vector<siPair> pairs(len+1,  new siPair(0, 0));
+  
     int sum = 0;
     int len = inputArr.size();
-    pairs[0] = new siPair(0, 0);
+    // 关键错误1 这里 initialise the array by calling siPair的default constructor
+    // 而struct 不像class 没有default constructor 所以就得自己定义一个
+    // 关键错误1 要for loop 每个iteration new allocate
+    //vector<siPair*> pairs(len+1, new pair(0, 0));
+    //vector<siPair> pairs(len+1,  new siPair(0, 0));
+    vector<siPair> pairs(len+1);
+    pairs[0] = siPair(0, 0);
     // 这里是 <= !!!!
     for (int i = 1; i <= len; ++i) {
-        sum += nums[i-1];
-        pairs[i] = new siPair (sum, i);
+        sum += inputArr[i-1];
+        pairs[i] = siPair (sum, i);
     }
 
     sort(pairs.begin(), pairs.end(), myComparator());
-   return 0;
+    return 0;
 }
