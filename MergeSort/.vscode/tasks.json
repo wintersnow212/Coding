@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "osx": {
+    "command": "clang++",
+    "args": [
+      "-std=c++11",
+      "-Wall",
+      "MergeSort.cpp",
+      "-v"
+    ],
+    "isShellCommand": true,
+    "showOutput": "always",
+    "problemMatcher": {
+      "owner": "cpp",
+      "fileLocation": [
+        "relative",
+        "${workspaceRoot}"
+      ],
+      "pattern": {
+        "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+        "file": 1,
+        "line": 2,
+        "column": 3,
+        "severity": 4,
+        "message": 5
+      }
+    }
+  },
+  "problemMatchers": [],
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "clang++ build active file",
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++",
+      "args": [
+        "-std=c++11",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+      }
+    }
+  ]
+}

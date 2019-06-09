@@ -1,4 +1,57 @@
 // Reference http://neutrofoton.github.io/blog/2016/12/29/c-plus-plus-priority-queue-with-comparator/
+class Solution {
+// 用multi
+unordered_map<string, multiset<string>> map;
+vector<string> route;
+public:
+    vector<string> findItinerary(vector<pair<string, string>> tickets) {
+        for (auto t : tickets)
+        {
+            string s = t.first;
+            map[s].insert(t.second);
+        }
+        
+        vector<string> ret;
+        int len = tickets.size();
+
+        vector<string> subRet;
+        subRet.push_back("JFK");
+        dfsHelper(ret, subRet, "JFK", len);
+
+        return ret;
+    }
+private:
+    void dfsHelper(vector<string>& ret, vector<string> subRet, string key, int len)
+    {        
+        if (subRet.size() == len + 1)
+        {
+            ret = subRet;
+            return;
+        }
+        
+        for (set<string>::iterator it = map[key].begin(); it != map[key].end(); ++it)
+        {
+            string s = *it;
+            cout << s << endl;
+            subRet.push_back(s);
+            // 这里是关键之一 发现multiSet会把所有key对应的element都erase了
+            auto strIt = map[key].find(s);
+            if (strIt != map[key].end()){
+                map[key].erase(strIt);
+            }
+            //map[key].erase(s);
+            dfsHelper(ret, subRet, s, len);
+            if (ret.size() != 0)
+            {
+                return;
+            }
+            subRet.pop_back();
+            map[key].insert(*strIt);
+        }
+    }
+};
+
+
 
 #include <iostream>     // std::cout
 #include <algorithm>    // std::sort
