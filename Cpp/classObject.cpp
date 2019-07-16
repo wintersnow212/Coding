@@ -1,11 +1,10 @@
+
 #include <iostream>
 #include <cstring>
 using namespace std;
 
 struct Node
 {
-
-
     Node()
     {
         
@@ -22,7 +21,22 @@ struct Node
     object, as a copy of the existing object (see this G-Fact). 
     And assignment operator is called when an already initialized object is 
     assigned a new value from another existing object.
+    
+     /*
+    三种情况下会调用copy constructor
+    1.    A newly-created object is initialized to the value of an existing object.
+    2.    An object is passed to a function as a non-reference object
+    3.    An object is return from a function by value
+    
+    所以 如果disable 了 copy constructor 就不能return object了
     */
+    
+    /*
+    C++ will provide a default copy constructor and default assignment operator that do a shallow copy.
+    默认的是浅拷贝  所以自己写的那个copy constructor以及overload = operator就是深拷贝 
+    Doing deep copies requires that we write our own copy constructors and overloaded assignment operators.
+    */
+
     Node(const Node& a)
     {
         cout << "copy constructor called " << endl;
@@ -68,6 +82,9 @@ public:
 private:
     // If we are using struct/class pointer 
     // I think it is better we manager its memory inside class itself!!
+    // 这里也是浅拷贝和深拷贝的重要区别的地方
+    // 简而言之，当数据成员中有指针时，必须要用深拷贝
+    // when designing classes that handle dynamically allocated memory
     Node* m_minNode;
     Node* m_maxNode;
 };
@@ -139,3 +156,4 @@ int main()
         cout << "Inside" << endl;
     }
 }
+
