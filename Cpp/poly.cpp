@@ -1,17 +1,16 @@
 #include <iostream>
 using namespace std;
 
-
 class Foo
 {
 public:
-  // single parameter constructor, can be used as an implicit conversion
-  Foo (int foo) : m_foo (foo) explicit
-  {
-     
-  }
+    // single parameter constructor, can be used as an implicit conversion
+    explicit Foo (int foo) : m_foo (foo) 
+    {
 
-  int GetFoo () { return m_foo; }
+    }
+
+    int GetFoo () { return m_foo; }
 
 private:
   int m_foo;
@@ -84,6 +83,20 @@ public:
     { 
         cout << "Base::v()\n"; 
     }
+    
+    virtual void speak(int i) 
+    {
+        cout << "???" << endl;
+    }
+    
+    /*
+        派生类一定要定义函数体
+        但是这样做以后抽象类就不能被实例化
+        既不能 Base b(1) 也不能 Base* b = new Base(1)
+    */
+    //virtual void speak(int i) = 0; 
+    
+    
     int parentPublic;
 protected:
     void parentShared()
@@ -123,6 +136,25 @@ public:
     { 
         cout << "Derived1::v()\n"; 
     }
+    
+    
+    /*
+    Virtual function 需要保证override的parameter必须相同
+    加一个override来确保 避免出现以下情况！！！！
+    struct Base 
+    {
+        virtual void some_func(float);
+    };
+
+    struct Derived : Base 
+    {
+        virtual void some_func(int);
+    };
+    */
+    virtual void speak(int i) override
+    {
+        cout << "Derived1 Speak" << endl;
+    }
 };
 
 class Derived2 : public Base
@@ -146,6 +178,11 @@ public:
     virtual void v()
     { 
         cout << "Derived2::v()\n"; 
+    }
+    
+    virtual void speak(int i) override
+    {
+        cout << "Derived2 Speak" << endl;
     }
 };
 
@@ -227,7 +264,6 @@ int main()
     
     cout << "----------explicit constructor------------" << endl;
     DoBar (42);
-    
    
     return 0;
 }
