@@ -6,7 +6,7 @@ using namespace std;
 class A
 {
 public:
-    A (int val):m_val(val)
+    A (string name):m_val(name)
     {
         cout << "constructor called" << endl;
     }
@@ -21,12 +21,30 @@ public:
         cout << "Destructor called" << endl;
     }
     
-    int GetVal()
+    string GetVal()
     {
         return m_val;
     }
+    
+    friend bool partnerUp(shared_ptr<A>& p1, shared_ptr<A> p2)
+    {
+        if (p1 == nullptr || p2 == nullptr)
+        {
+            return false;
+        }
+        
+        p1->m_partner = p2;
+        p2->m_partner = p1;
+        
+        std::cout << p1->m_val << " is now partnered with " << 
+            p2->m_val << "\n";
+ 
+        return true;
+    }
+    shared_ptr<A> m_partner;
 private:
-    int m_val;
+    string m_val;
+    
 };
 
 
@@ -38,7 +56,7 @@ void MyFunc2(unique_ptr<A>& arg)
 
 void uniqueTest2()
 {
-    unique_ptr<A> ptr = unique_ptr<A>(new A(1234));
+    unique_ptr<A> ptr = unique_ptr<A>(new A("TX"));
     MyFunc2(ptr);
 }
 
@@ -53,7 +71,7 @@ void uniqueTest1()
 {
     //unique_ptr<A> ptr = static_cast<unique_ptr<A>>(new A(1234));
     // 使用make_unique更好 因为safety exception 
-    unique_ptr<A> ptr = make_unique<A>(1234);
+    unique_ptr<A> ptr = make_unique<A>("TX");
     
     
     // unique_ptr delete the copy constructor 
@@ -74,7 +92,35 @@ void sharedTest1(shared_ptr<A> arg)
 {
     cout << arg->GetVal() << endl;
 }
-  
+
+class Resource
+{
+public:
+    //std::shared_ptr<Resource> m_ptr; // initially created empty
+    std::weak_ptr<Resource> m_ptr;
+    
+    
+    Resource() { std::cout << "Resource acquired\n"; }
+    ~Resource() { std::cout << "Resource destroyed\n"; }
+};
+
+void weakPtrTest()
+{
+    // 这个更好 简单的例子 weak ptr 可以用来解决cyclical reference
+    // cyclical reference issue can even happen with a single std::shared_ptr
+    // Weak pointer will not increase reference count
+    // this is just like the reference but its memory is not persist
+    cout << "--------weak Pointer------------" << endl;
+    auto ptr1 = std::make_shared<Resource>();
+ 
+    ptr1->m_ptr = ptr1; // m_ptr is now sharing the Resource that contains it
+    
+    //std::weak_ptr<A> weakPtr = ptr2;    
+    
+    cout << "--------weak Pointer------------" << endl;
+}
+
+
 // To execute C++, please define "int main()"
 int main() 
 {
@@ -88,19 +134,25 @@ int main()
     
     // allocate a Resource object and have it owned by std::shared_ptr
 
-    shared_ptr<A> sharedPtr = make_shared<A>(5678);
+    shared_ptr<A> YZ = make_shared<A>("YZ");
     {
         // use copy initialization to make another std::shared_ptr pointing to the same thing
-        std::shared_ptr<A> ptr2(sharedPtr); 
-        
-
-        // Weak pointer will not increase reference count
-        // this is just like the reference but its memory is not persist
-        std::weak_ptr<A> weakPtr = ptr2;    
+        std::shared_ptr<A> ptr2(YZ); 
             
     } // ptr2 goes out of scope here, but nothing happens
  
-    sharedTest1(sharedPtr);
-    cout << "--------Shared pointer------------" << endl;
+    sharedTest1(YZ);
+    
+
+    auto TX = make_shared<A>("TX");
+    
+
+    //partnerUp(YZ, TX);
+    cout << "--------Shared Pointer------------" << endl;
+    
+    // That’s it. No deallocations took place.
+    
+    
+    weakPtrTest();
     return 0;
 }
