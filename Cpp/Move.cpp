@@ -39,35 +39,35 @@ public:
       std::cout << std::endl;
    }
 
-//    // Copy constructor.  deep copy
-//    MemoryBlock(const MemoryBlock& other)
-//       : _length(other._length)
-//       , _data(new int[other._length])
-//    {
-//       std::cout << "In MemoryBlock(const MemoryBlock&). length = "
-//                 << other._length << ". Copying resource." << std::endl;
+   // Copy constructor.  deep copy
+   MemoryBlock(const MemoryBlock& other)
+      : _length(other._length)
+      , _data(new int[other._length])
+   {
+      std::cout << "In MemoryBlock(const MemoryBlock&). length = "
+                << other._length << ". Copying resource." << std::endl;
 
-//       std::copy(other._data, other._data + _length, _data);
-//    }
+      std::copy(other._data, other._data + _length, _data);
+   }
 
-//    // Copy assignment operator.
-//    MemoryBlock& operator=(const MemoryBlock& other)
-//    {
-//         std::cout << "In operator=(const MemoryBlock&). length = "
-//                 << other._length << ". Copying resource using copy assignment." << std::endl;
+   // Copy assignment operator.
+   MemoryBlock& operator=(const MemoryBlock& other)
+   {
+        std::cout << "In operator=(const MemoryBlock&). length = "
+                << other._length << ". Copying resource using copy assignment." << std::endl;
 
-//         if (this != &other)
-//         {
-//             // Free the existing resource.
-//              delete[] _data;
+        if (this != &other)
+        {
+            // Free the existing resource.
+             delete[] _data;
 
-//              _length = other._length;
-//              _data = new int[_length];
-//              std::copy(other._data, other._data + _length, _data);
-//         }
+             _length = other._length;
+             _data = new int[_length];
+             std::copy(other._data, other._data + _length, _data);
+        }
       
-//         return *this;
-//    }
+        return *this;
+   }
 
    // Retrieves the length of the data resource.
    size_t Length() const

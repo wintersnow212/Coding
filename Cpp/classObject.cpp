@@ -29,9 +29,7 @@ struct Node
     3.    An object is return from a function by value
     
     所以 如果disable 了 copy constructor 就不能return object了
-    */
     
-    /*
     C++ will provide a default copy constructor and default assignment operator that do a shallow copy.
     默认的是浅拷贝  所以自己写的那个copy constructor以及overload = operator就是深拷贝 
     Doing deep copies requires that we write our own copy constructors and overloaded assignment operators.

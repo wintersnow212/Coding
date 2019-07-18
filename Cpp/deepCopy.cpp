@@ -29,6 +29,24 @@ public:
     
     
     // Deep copy --- copy constructor
+    /*
+    Copy constructor is called when a new object is created from an existing     
+    object, as a copy of the existing object (see this G-Fact). 
+    And assignment operator is called when an already initialized object is 
+    assigned a new value from another existing object.
+    
+     /*
+    三种情况下会调用copy constructor
+    1.    A newly-created object is initialized to the value of an existing object.
+    2.    An object is passed to a function as a non-reference object
+    3.    An object is return from a function by value
+    
+    所以 如果disable 了 copy constructor 就不能return object了
+    
+    C++ will provide a default copy constructor and default assignment operator that do a shallow copy.
+    默认的是浅拷贝  所以自己写的那个copy constructor以及overload = operator就是深拷贝 
+    Doing deep copies requires that we write our own copy constructors and overloaded assignment operators.
+    */
     MyString(const MyString& source)
     {
          m_length = source.m_length;
@@ -62,15 +80,22 @@ public:
     如果非要
     如果非要返回一个局部变量的引用，可以new 类型(初值) 申请一个堆内存的临时变量，这样只要不delete释放，
     那么在程序退出之前内存就不会被释放，直到不再使用时便可delete掉.
+
+    和copy construtor 的区别
+    The purpose of the copy constructor and the assignment operator are almost equivalent -- both copy one object to another. 
+    However, the copy constructor initializes new objects, 
+    whereas the assignment operator replaces the contents of existing objects.
     */
     MyString& operator = (const MyString & source)
     {
         cout << "Deep = operator overload is called" << endl;
         // check for self-assignment
+        // 注意 这里不能是*this  == source 因为没有== operator
         if (this == &source)
             return *this;
 
         // first we need to deallocate any value that this string is holding!
+        // 这一步非常关键！！！！！
         delete[] m_data;
 
         // because m_length is not a pointer, we can shallow copy it
