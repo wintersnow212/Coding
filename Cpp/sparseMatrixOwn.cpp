@@ -137,6 +137,7 @@ public:
 //             }
 //         }
         
+        // Best method is to use copy constructor
         SPMatrix ret(other);
         
         for (auto m : this->map)
@@ -171,6 +172,7 @@ private:
 int main() {
     SPMatrix sp(2, 2);
     sp.Set(0, 0, 1);
+    sp.Set(0, 0, 0);
     sp.Set(1, 1, 2);
     
     SPMatrix sp2(2, 2);
@@ -179,6 +181,7 @@ int main() {
     sp2.Set(0, 1, 2);
     
     SPMatrix ret = sp + sp2;
+    
     cout << ret.Get(0, 0) << endl;
     cout << ret.Get(1, 1) << endl;
     cout << ret.Get(0, 1) << endl;
