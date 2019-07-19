@@ -4,41 +4,32 @@
 #include <unordered_set>
 using namespace std;
 
-using Node = pair<int, int>;
+// 其实template 就是申明的时候用template<typename T>
+// 使用的时候用type + <T> ---- 比如 Node<T>
+template<typename T>using Node = pair<T, T>;
 
-
-// struct hash<Key>
-//   {
-//     std::size_t operator()(const Key& k) const
-//     {
-//       using std::size_t;
-//       using std::hash;
-//       using std::string;
-
-//       // Compute individual hash values for first,
-//       // second and third and combine them using XOR
-//       // and bit shifting:
-
-//       return ((hash<string>()(k.first)
-//                ^ (hash<string>()(k.second) << 1)) >> 1)
-//                ^ (hash<int>()(k.third) << 1);
-//     }
-//   };
-
+template<typename T>
 struct pair_hash
 {
-    // Const member functuion
-    std::size_t operator()(const Node& key) const
+    // Const member functuion why it must be const????
+    // std::size_t operator()(const Node& key) const
+    // {
+    //     return (hash<int>()(key.first) ^ 
+    //             hash<int>()(key.second));
+    // }
+    
+    std::size_t operator()(const Node<T>& key) const
     {
-        return (hash<int>()(key.first) ^ 
-                hash<int>()(key.second));
+        return (hash<T>()(key.first) ^ 
+                hash<T>()(key.second));
     }
 };
 
+template<typename T, typename V>
 class SPMatrix
 {
 public:
-    SPMatrix(int r, int c)
+    SPMatrix(T r, T c)
         : m_row(r)
         , m_col(c)
     {
@@ -50,14 +41,14 @@ public:
         
     }
     
-    void Set(int r, int c, int val)
+    void Set(T r, T c, V val)
     {
         if (r < 0 || r >= m_row || c < 0 || c >= m_col)
         {
             throw "invalid input";
         }
         
-        Node n = {r, c};
+        Node<T> n = {r, c};
         
         if (map.find(n) != map.end())
         {
@@ -82,7 +73,7 @@ public:
     }
     
     
-    int Get(int r, int c) const
+    V Get(T r, T c) const
     {
         if (r < 0 || r >= m_row || c < 0 || c >= m_col)
         {
@@ -142,9 +133,9 @@ public:
         
         for (auto m : this->map)
         {
-            int r = m.first.first;
-            int c = m.first.second;
-            int val = this->Get(r, c) + 
+            T r = m.first.first;
+            T c = m.first.second;
+            V val = this->Get(r, c) + 
                       ret.Get(r, c);
             ret.Set(r, c, val);
         }
@@ -162,25 +153,25 @@ public:
         return this->Add(other);
     }
 private:
-    int m_row;
-    int m_col;
-    unordered_map<Node, int, pair_hash> map;
+    T m_row;
+    T m_col;
+    unordered_map<Node<T>, V, pair_hash<T>> map;
 };
 
 
 // To execute C++, please define "int main()"
 int main() {
-    SPMatrix sp(2, 2);
-    sp.Set(0, 0, 1);
-    sp.Set(0, 0, 0);
-    sp.Set(1, 1, 2);
+    SPMatrix<int, float> sp(2, 2);
+    sp.Set(0, 0, 1.5);
+    sp.Set(0, 0, 0.5);
+    sp.Set(1, 1, 2.5);
     
-    SPMatrix sp2(2, 2);
-    sp2.Set(0, 0, 1);
-    sp2.Set(1, 1, 2);
-    sp2.Set(0, 1, 2);
+    SPMatrix<int, float> sp2(2, 2);
+    sp2.Set(0, 0, 1.3);
+    sp2.Set(1, 1, 2.3);
+    sp2.Set(0, 1, 2.3);
     
-    SPMatrix ret = sp + sp2;
+    SPMatrix<int, float> ret = sp + sp2;
     
     cout << ret.Get(0, 0) << endl;
     cout << ret.Get(1, 1) << endl;
