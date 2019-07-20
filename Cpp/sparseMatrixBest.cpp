@@ -4,8 +4,8 @@
 #include <unordered_set>
 using namespace std;
 
-// 其实template 就是申明的时候用template<typename T>
-// 使用的时候用type + <T> ---- 比如 Node<T> 因为这个就是它的完整type了！！！
+// 其实template 就是申明的时候前面加一个template<typename T>
+// 使用的时候正常的type后面再加一个<T> ---- 比如 Node<T> 因为这个就是它的完整type了！！！
 template<typename T>using Node = pair<T, T>;
 
 template<typename T>
@@ -143,6 +143,52 @@ public:
         return ret;
     }
     
+    SPMatrix Multiply (const SPMatrix& other) const
+    {
+        SPMatrix ret(m_row, other.m_col);
+        
+//         for (const auto& m1 : map)
+//         {
+//             Node<T> n1 = m1.first;
+//             for (const auto& m2 : other.map)
+//             {
+//                 Node<T> n2 = m2.first;
+//                 if (n1.second == n2.first)
+//                 {
+//                     V val = this->Get(n1.first, n1.second) *
+//                             other.Get(n2.first, n2.second);
+                    
+//                     V sum = ret.Get(n1.first, n2.second) + val;
+//                     ret.Set(n1.first, n2.second, sum);
+//                 }
+//             }
+//         }
+        
+        // 其实思想很简单就是 
+        // 1. A的row B的col 要相同
+        // 2. 最后的结果就是A的row 和B的col组成
+        for (const auto& m1 : map)
+        {
+            T r1 = m1.first.first;
+            T c1 = m1.first.second;
+            for (const auto& m2 : other.map)
+            {
+                T r2 = m2.first.first;
+                T c2 = m2.first.second;
+                if (c1 == r2)
+                {
+                    V val = this->Get(r1, c1) *
+                            other.Get(r2, c2);
+                    
+                    V sum = ret.Get(r1, c2) + val;
+                    ret.Set(r1, c2, sum);
+                }
+            }
+        }
+        
+        return ret;
+    }
+    
     SPMatrix operator+ (const SPMatrix& other) const
     {
         if (other.m_row != m_row || other.m_col != m_col)
@@ -151,6 +197,16 @@ public:
         }
         
         return this->Add(other);
+    }
+    
+    SPMatrix operator* (const SPMatrix& other) const
+    {
+        if (m_row != other.m_col)
+        {
+            throw "invalid dimension";
+        }
+        
+        return Multiply(other);
     }
 private:
     T m_row;
@@ -176,5 +232,24 @@ int main() {
     cout << ret.Get(0, 0) << endl;
     cout << ret.Get(1, 1) << endl;
     cout << ret.Get(0, 1) << endl;
+    
+    
+    SPMatrix<int, int> spM(2, 2);
+    spM.Set(0, 0, 2);
+    spM.Set(0, 1, 1);
+    spM.Set(1, 1, 3);
+    
+    SPMatrix<int, int> spM2(2, 2);
+    spM2.Set(0, 0, 1);
+    spM2.Set(0, 1, 3);
+    spM2.Set(1, 1, 2);
+
+    
+    SPMatrix<int, int> retM = spM * spM2;
+    
+    cout << retM.Get(0, 0) << endl;
+    cout << retM.Get(0, 1) << endl;
+    cout << retM.Get(1, 1) << endl;
+    
     return 0;
 }
