@@ -12,16 +12,9 @@ template<typename T>
 struct pair_hash
 {
     // Const member functuion why it must be const????
-    // std::size_t operator()(const Node& key) const
-    // {
-    //     return (hash<int>()(key.first) ^ 
-    //             hash<int>()(key.second));
-    // }
-    
     std::size_t operator()(const Node<T>& key) const
     {
-        return (hash<T>()(key.first) ^ 
-                hash<T>()(key.second));
+        return (hash<T>()(key.first) ^ hash<T>()(key.second));
     }
 };
 
@@ -146,23 +139,6 @@ public:
     SPMatrix Multiply (const SPMatrix& other) const
     {
         SPMatrix ret(m_row, other.m_col);
-        
-//         for (const auto& m1 : map)
-//         {
-//             Node<T> n1 = m1.first;
-//             for (const auto& m2 : other.map)
-//             {
-//                 Node<T> n2 = m2.first;
-//                 if (n1.second == n2.first)
-//                 {
-//                     V val = this->Get(n1.first, n1.second) *
-//                             other.Get(n2.first, n2.second);
-                    
-//                     V sum = ret.Get(n1.first, n2.second) + val;
-//                     ret.Set(n1.first, n2.second, sum);
-//                 }
-//             }
-//         }
         
         // 其实思想很简单就是 
         // 1. A的row B的col 要相同
