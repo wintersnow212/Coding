@@ -5,7 +5,7 @@
 using namespace std;
 
 // 其实template 就是申明的时候用template<typename T>
-// 使用的时候用type + <T> ---- 比如 Node<T>
+// 使用的时候用type + <T> ---- 比如 Node<T> 因为这个就是它的完整type了！！！
 template<typename T>using Node = pair<T, T>;
 
 template<typename T>
