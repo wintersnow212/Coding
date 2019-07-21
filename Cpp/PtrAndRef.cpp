@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <vector>
 #include <assert.h>
 using namespace std;
 
@@ -68,8 +69,71 @@ void strLenTest(char* p)
     cout << "string size is " << strlen(p) << endl;
 }
 
+int getValue()
+{
+    int a = 3;
+    return a;
+}
+
+// 错误！！ reference to local variable ‘a’ returned
+// 因为你out of scope后 就会被free了 所以return reference to local varible
+// 没有任何意义
+int& getReference()
+{
+//     int a = 3;
+//     return a;
+    
+    // New 的使用
+    // 表示 allocate a single int and init it to 100
+    // constructor call
+    //int* a = new int(5);
+    
+    // 表示 allocate a array of 5 adjacent integers
+    int* a = new int[5];
+    *a = 1;
+    
+    return *a;
+}
+
+void getPointer(vector<int*>& ptrVec)
+{
+    int test = 100;
+    // 错误 这里是pointer to local variable!!!! 
+    // out of scope 就会被free了 所以存它的地址没有任何意义
+    int* pRet = &test;
+    ptrVec.push_back(pRet);
+    
+    // 可以改成static 但是staic 的问题在于每次call getPointer 它的改变都会保存下来
+    // 因为static是和life time 有关
+    // static int testVar = 100;
+    // int* pRet = &testVar;
+    // ptrVec.push_back(pRet);
+}
+
 // To execute C++, please define "int main()"
 int main() {
+    // 错误！！ 正常function return 是不能assign 给lValue的 因为function return 是temporary no name的rValue
+    //int& ref = getValue();
+    
+    int& ref = getReference();
+    delete [](&ref);
+    
+    vector<int*> ptrVec;
+    getPointer(ptrVec);
+    cout << "Test the freed garbage memory" <<endl;
+    cout << *ptrVec[0] << endl;
+    
+    cout << "Test the out of bound" <<endl;
+    int arr[] = {1,2,3,4,5}; 
+    printf("arr [0] is %d\n", arr[0]); 
+      
+    // arr[10] is out of bound 这个在C 的compiler里面竟然是可以的！！！
+    printf("arr[10] is %d\n", arr[10]); 
+    
+    
+    arr[10] = 11; 
+    printf("arr[10] is %d\n",arr[10]); 
+    
     char* pStr = nullptr;
     Correct(pStr);
     cout << pStr << endl;
