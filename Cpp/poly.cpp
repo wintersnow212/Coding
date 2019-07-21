@@ -75,6 +75,9 @@ public:
     { 
         cout << "----------virtual in base------------" << endl;
         cout << "Base::f()\n"; 
+        // 这个v() 是会call children 因为
+        // 1. 这个指针是 Base* b = static_cast<Base*>(&d1);
+        // 2. v是virtual function 被inherit了
         v();
         cout << "----------virtual in base------------" << endl;
     }
@@ -86,7 +89,7 @@ public:
     
     virtual void speak(int i) 
     {
-        cout << "???" << endl;
+        cout << "Base speak" << endl;
     }
     
     /*
@@ -123,6 +126,7 @@ public:
     void f()
     { 
         cout << "Derived1::f()\n"; 
+        static_cast<Base*>(this)->f();
     }
     
     void childOwn()
@@ -132,6 +136,12 @@ public:
         cout << "Derived1::childOwn\n"; 
     }
 
+    void callBaseCopyConstructor()
+    {
+        cout << "Call Base Copy Constructor\n";  
+        Base(*this);
+        cout << "Call Base Copy Constructor\n";  
+    }
     virtual void v()
     { 
         cout << "Derived1::v()\n"; 
@@ -145,7 +155,6 @@ public:
     {
         virtual void some_func(float);
     };
-
     struct Derived : Base 
     {
         virtual void some_func(int);
@@ -153,7 +162,12 @@ public:
     */
     virtual void speak(int i) override
     {
+        cout << "----------Call the parent class from child------------" << endl;
         cout << "Derived1 Speak" << endl;
+        // 这样是死循环不停的call 自己
+        //speak(i);
+        Base::speak(i);
+        cout << "----------Call the parent class from child------------" << endl;
     }
 };
 
@@ -221,18 +235,18 @@ int main()
         
         You could cast from a point reference (or pointer) to a subpoint reference (or pointer), if the referred object were 
         actually of type subpoint: 
-
         dynamic_cast will only work if point is polymorphic (that is, if it has a virtual function).
         Static_cast downcast don’t have this requirement
         这也是dynamic cast好的地方 有检测 exclusively used for handling polymorphism.
-
     */ 
     Base* b = static_cast<Base*>(&d1);
+    b->speak(2);
     
     //Derived2* d2 = new Derived2();
     // Child 可以调用base's function 但是不是other way around
     //b->childOwn();
     d1.childOwn();
+    d1.callBaseCopyConstructor();
     b->f();
     b->v();
     
@@ -252,6 +266,7 @@ int main()
     
     // 这样是不会call assignment operator的 
     // 因为只是指针的改变啊 并不是object的创建
+
     cout << "----------Assignment Op------------" << endl;
     Base* b2 = new Base();
     b = b2;
@@ -263,7 +278,7 @@ int main()
     cout << "----------Assignment Op-----------" << endl;
     
     cout << "----------explicit constructor------------" << endl;
-    DoBar (42);
+    //DoBar (42);
    
     return 0;
 }
