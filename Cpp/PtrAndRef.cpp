@@ -123,16 +123,16 @@ int main() {
     cout << "Test the freed garbage memory" <<endl;
     cout << *ptrVec[0] << endl;
     
-    cout << "Test the out of bound" <<endl;
-    int arr[] = {1,2,3,4,5}; 
-    printf("arr [0] is %d\n", arr[0]); 
+//     cout << "Test the out of bound" <<endl;
+//     int arr[] = {1,2,3,4,5}; 
+//     printf("arr [0] is %d\n", arr[0]); 
       
-    // arr[10] is out of bound 这个在C 的compiler里面竟然是可以的！！！
-    printf("arr[10] is %d\n", arr[10]); 
+//     // arr[10] is out of bound 这个在C 的compiler里面竟然是可以的！！！
+//     printf("arr[10] is %d\n", arr[10]); 
     
     
-    arr[10] = 11; 
-    printf("arr[10] is %d\n",arr[10]); 
+//     arr[10] = 11; 
+//     printf("arr[10] is %d\n",arr[10]); 
     
     char* pStr = nullptr;
     Correct(pStr);
@@ -180,6 +180,45 @@ int main() {
     int* p = &a;
     *p = 10;
     cout << a << endl;
+    
+    struct Node
+    {
+        Node(int v)
+            : val(v)
+            , next(nullptr)
+        {
+
+        }
+        
+        bool operator== (const Node& other)
+        {
+            if (val == other.val && next == other.next)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+        int   val;
+        Node* next;
+    };
+    
+    Node* ptr1 = new Node(1);
+    Node* ptr2 = ptr1;
+    
+    if (ptr2 == ptr1)
+    {
+        cout << "We are comparing the address that pointer points to" << endl;
+    }
+    
+    
+    Node obj1(1);
+    Node obj2(1);
+    
+    if (obj1 == obj2)
+    {
+        cout << "We are comparing the objects and we need to overload the == " << endl;
+    }
     
     return 0;
 }
