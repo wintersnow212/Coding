@@ -85,6 +85,30 @@ public:
     The purpose of the copy constructor and the assignment operator are almost equivalent -- both copy one object to another. 
     However, the copy constructor initializes new objects, 
     whereas the assignment operator replaces the contents of existing objects.
+
+    a b; //constructor
+    a c; //constructor
+    b = c; //copy assignment
+    c = a(b); //copy constructor, then copy assignment
+
+    a* b = new a(); //constructor called
+    a* c; //nothing is called
+    c = b; //still nothing is called
+    c = new a(*b); //copy constructor is called
+
+    
+    if a functions receives as argument, passed by value, an object of a class
+    void foo(MyClass a);
+    foo(a);
+
+
+    When a function returns (by value) an object of the class
+    MyClass foo ()
+    {
+        MyClass temp;
+        ....
+        return temp; // copy constructor called
+    }
     */
     MyString& operator = (const MyString & source)
     {
