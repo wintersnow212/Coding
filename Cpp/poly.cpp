@@ -73,18 +73,20 @@ public:
     
     void f()
     { 
-        cout << "----------virtual in base------------" << endl;
-        cout << "Base::f()\n"; 
+        cout << "Base::f()\n";
+        cout << "----------Base call pointer refers to derived will call child's virtual------------" << endl;
         // 这个v() 是会call children 因为
         // 1. 这个指针是 Base* b = static_cast<Base*>(&d1);
         // 2. v是virtual function 被inherit了
         v();
-        cout << "----------virtual in base------------" << endl;
+        cout << "----------Base call pointer refers to derived will call child's virtual------------" << endl;
     }
     
     virtual void v()
     { 
-        cout << "Base::v()\n"; 
+        cout << "----------Base class object will call base‘s virtual------------" << endl;
+        cout << "Base::v()\n";
+        cout << "----------Base class object will call base‘s virtual------------" << endl;
     }
     
     virtual void speak(int i) 
@@ -249,7 +251,8 @@ int main()
     d1.callBaseCopyConstructor();
     b->f();
     b->v();
-    
+    Base* baseObj = new Base();
+    baseObj->v();
     
     cout << "----------Pass the class object by value------------" << endl;
     test(*b);
