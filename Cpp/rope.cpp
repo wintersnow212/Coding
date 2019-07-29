@@ -1,6 +1,13 @@
 #include <iostream>
 using namespace std;
 /*
+一个Rope 数据结构用来高效的处理字符串的拼接、查询、删除、及随机访问。
+Rope的一个典型应用场景是：在一个文本编辑程序里，用来保存较长的文本字符串。如下图，字符串“Hello_my_name_is_Simon”的表示 
+One of the most common operations on strings is appending or concatenation. 
+Appending to the end of a string when the string is stored in the traditional manner (i.e. an array of characters) would take a minimum of O(n) time (where n is the length of the original string).
+
+We can reduce time taken by append using Ropes Data Structure.
+
 https://en.wikipedia.org/wiki/Rope_(data_structure)
 
 A node with two children thus divides the whole string into two parts: the left subtree stores the first part of the string, the right subtree stores the second part of the string, and node's weight is the sum of the left child's weight along with all of the nodes contained in its subtree.
