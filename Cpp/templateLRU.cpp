@@ -55,6 +55,8 @@ struct myHash
 //     }
 // };
 
+
+template<typename T>using Node = pair<T, T>;
 template <typename T>
 class LRUCache {
 public:
@@ -98,18 +100,21 @@ public:
     }
 private:
     int m_cap;
-    list<pair<T, T>> m_list;
-    // 关键是typename
-    /* You need to write typename before std::list<...>::iterator, because iterator 
-       is a nested type and you're writing a template.
-       这里可能不需要typename
-    */
-    //unordered_map<T, typename list<pair<T, T>>::iterator, myHash<T>> map;
-    unordered_map<T, typename list<pair<T, T>>::iterator> map;
+    // list<pair<T, T>> m_list;
+    // // 关键是typename
+    // /* You need to write typename before std::list<...>::iterator, because iterator 
+    //    is a nested type and you're writing a template.
+    // */
+    // //unordered_map<T, typename list<pair<T, T>>::iterator, myHash<T>> map;
+    // unordered_map<T, typename list<pair<T, T>>::iterator> map;
+    
+    //  优化写法
+    //typedef list<Node<T>> ListType;
+    typedef list<pair<T, T>> ListType;
+    typedef typename ListType::iterator IterType;
+    ListType m_list;
+    unordered_map<T, IterType> map;
 };
-
-
-
 
 
 // To execute C++, please define "int main()"
