@@ -87,7 +87,7 @@ public:
 
     virtual ~SharedPtr()
     {
-        if (m_refCnt > 0)
+        if (m_refCnt.getCnt() > 0)
         {
             m_refCnt->Decrement();
             cout << "Destroyed smart_ptr! Ref count is " << m_refCnt->getCnt() << endl;
