@@ -119,6 +119,43 @@ void weakPtrTest()
     
     cout << "--------weak Pointer------------" << endl;
 }
+/*
+这里其实是return by value
+When a value is returned by value, a copy of that value is returned to the caller
+Return by value is the most appropriate最合适的 when returning variables that were declared inside the function
+
+
+Because return of certain expressions, 
+such as local automatic variables, are explicitly defined to return a moved object, 
+if the moving operator is available.
+So:
+
+return p;
+is more or less similar to:
+
+return std::move(p);
+
+But note that this will not work for example with a global variable.
+
+std::unique_ptr<int> g(new int(3));
+std::unique_ptr<int> ptr() {
+    return g;  //  error!!!
+}
+*/
+unique_ptr<int> returnSmartPointer()
+{
+    std::unique_ptr<int> p(new int(3));
+    return p;
+}
+
+/* return by address 就要小心
+Return by address is often used to return dynamically allocated memory to the caller:
+*/
+int* doubleValue(int x)
+{
+    int value = x * 2;
+    return &value; // return value by address here
+} // value destroyed here
 
 
 // To execute C++, please define "int main()"
