@@ -123,7 +123,10 @@ void weakPtrTest()
 这里其实是return by value
 When a value is returned by value, a copy of that value is returned to the caller
 Return by value is the most appropriate最合适的 when returning variables that were declared inside the function
-
+This is in no way specific to std::unique_ptr, but applies to any class that is movable. It's guaranteed by the language rules since you are returning by value. 
+1.The compiler tries to elide copies, invokes a move constructor if it can't remove copies, 
+2.calls a copy constructor if it can't move, 
+3.and fails to compile if it can't copy.
 
 Because return of certain expressions, 
 such as local automatic variables, are explicitly defined to return a moved object, 
