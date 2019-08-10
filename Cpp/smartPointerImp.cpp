@@ -84,14 +84,13 @@ public:
     3. 
     copy constructor的意义或者变换方向没有很好的理解
     copy表示传入的一个object(i.e. other) 用它来初始化自己本身
-    
     */
     SharedPtr (const SharedPtr& other)
     {
         m_ptr = other.m_ptr;
         m_refCnt = other.m_refCnt;
         m_refCnt->Increment();
-
+        cout << "Let me See! " << other.m_refCnt->getCnt() << endl;
         cout << "Copy constructor called! Ref count is " << m_refCnt->getCnt() << endl;
     }
 
@@ -193,9 +192,13 @@ public:
     SharedPtrSp (const SharedPtrSp& other)
     {
         m_ptr = other.m_ptr;
-        *m_refCnt = *(other.m_refCnt);
+        // 这个是错误的！！！！因为这样你的other 就没有的到update!!!
+        // const 没有关系我又没有改变m_refCnt的指向我只改变了里面的值
+        //*m_refCnt = *(other.m_refCnt);
+        // 这个是正确的！！！！
+        m_refCnt = (other.m_refCnt);
         (*m_refCnt)++;
-        
+        cout << "Let me See! " << *(other.m_refCnt) << endl;
         cout << "Copy constructor called! Ref count is " << *m_refCnt << endl;
     }
     
