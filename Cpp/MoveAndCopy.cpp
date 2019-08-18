@@ -147,7 +147,7 @@ private:
    int* _data; // The resource.
 };
 
-
+// Another example from learn c++
 template<class T>
 class Auto_ptr4
 {
