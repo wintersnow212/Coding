@@ -147,7 +147,8 @@ private:
    int* _data; // The resource.
 };
 
-// Another example from learn c++
+// Another example from learn c++ 
+// https://www.learncpp.com/cpp-tutorial/15-3-move-constructors-and-move-assignment/
 template<class T>
 class Auto_ptr4
 {
