@@ -42,9 +42,12 @@ public:
 private:
     typedef std::map<std::string, CreateCallback> CallbackMap;
     static CallbackMap mRenderers;
+    // Need to declare as static because it will be used in static member function
+    //CallbackMap mRenderers;
 };
 
 
+// static member need to be instantiated!!!
 // instantiate the static variable in RendererFactory
 RendererFactory::CallbackMap RendererFactory::mRenderers;
 
