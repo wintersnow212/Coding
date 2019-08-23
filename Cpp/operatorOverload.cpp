@@ -13,7 +13,7 @@ struct Interval
     Interval(int s, int e) : start(s), end(e) {}
 };
 
-// This is function call operator
+// Function call operator overload
 class myFunctor {
 public:
     // Function Objects (Functors) - 
@@ -38,31 +38,17 @@ int minMeetingRooms(vector<Interval>& intervals) {
     // priority_queue take in的是type 所以CompEnd就够了
     sort(intervals.begin(), intervals.end(), myFunctor());
     priority_queue<Interval, vector<Interval>, myFunctor> pq;
-    
-    
-    
-    pq.push(intervals[0]);
-    int ret = 1;
-    for (size_t i = 1; i < intervals.size(); ++i)
-    {
-        Interval top = pq.top();
-
-        if (top.end <= intervals[i].start)
-        {
-            top.end = intervals[i].end;
-            pq.pop();
-            pq.push(top);
-
-        }
-        else
-        {
-            ret++;
-            pq.push(intervals[i]);
-        }
-    }
-
-    return ret;
+    return 0;
 }
+
+
+/*
+    It turns out that there are three different ways to overload operators: 
+    1. the member function way,
+    2. the friend function way, 
+    3. the normal function way. 
+    In this lesson, we’ll cover the friend function way    
+*/
 
 struct complx
 {
@@ -98,7 +84,8 @@ struct complx
         return result;
     }
     
-    bool operator > (const complx& other)
+    // 这里不需要const的原因是caller 不是const type
+    bool operator> (const complx& other)
     {
         if (this->real == other.real)
         {
@@ -109,12 +96,69 @@ struct complx
     }
 };
 
+// 这里不用的原因是因为struct default是public
 std::ostream& operator<<(std::ostream& stream, const complx& other)
 {
     stream << other.real << "." << other.imag << endl;
     
     return stream;
 }
+
+
+class Cents
+{
+public:
+    Cents(int cents)
+        : m_cents(cents)
+    {
+            
+    }
+    /*
+    It turns out that there are three different ways to overload operators: 
+    1. the member function way,
+    2. the friend function way, 
+    3. the normal function way. 
+    In this lesson, we’ll cover the friend function way    
+    */
+    
+    /*
+    Friend 函数类重载
+    用friend的原因是我们外面要access private member来调用operator
+    As we know friend functions are special type of functions that are not 
+    member of the class but can access member variables and can be called 
+    without using any objec
+    如果是重载双目操作符（即为类的成员函数），就只要设置一个参数作为右侧运算量，而左侧运算量就
+    是对象本身
+    而 >> 或<< 左侧运算量是 cin或cout 而不是对象本身，所以不满足后面一点，
+    就只能申明为友元函数
+    */
+    friend bool operator>(const Cents &c1, const Cents &c2)
+    {
+        return (c1.m_cents > c2.m_cents);
+    }
+    
+    // bool operator>(Cents &c1, Cents &c2)
+    // {
+    //     return (c1.m_cents > c2.m_cents);
+    // }
+    
+    /*
+    成员函数重载：可通过this指针访问本类的成员，可以少写一个参数，但是表达式左边的第一个参数必
+    须是类对象，通过该类对象来调用成员函数。
+     这里需要const的原因是caller 是const type   */
+    // bool operator>(const Cents& other) const
+    // {
+    //     return m_cents > other.m_cents;
+    // }
+    
+    void test (Cents &c1, Cents &c2)
+    {
+        cout << c1.m_cents << endl;
+        cout << c2.m_cents << endl;
+    }
+private:
+    int m_cents;
+};
 
 int main()
 {
@@ -136,4 +180,17 @@ int main()
     {
         cout << "wrong" << endl;
     }
+    
+    
+    Cents n(5);
+    Cents d(10);
+    if (n > d)
+    {
+        cout << "larger" << endl;
+    }
+    else
+    {
+        cout << "smaller" << endl;
+    }
+
 }    
