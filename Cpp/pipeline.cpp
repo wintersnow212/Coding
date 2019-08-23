@@ -70,7 +70,17 @@ void blend (Image & img, const Image& other) {
 
 } // namespace ImgLib
 
-class pipeline
+class Pipeline
+{
+    // Dispatch table of function pointer
+    // http://www.newty.de/fpt/fpt.html#chapter2
+
+    // Dispatch table like function pointer or lambda 
+    // Difference between function pointer and lamdba ---- performance wise
+    //http://www.modernescpp.com/index.php/functional-in-c-dispatch-table
+
+
+}
 
 // Forward declaration of the process function that you have to write (below).
 void process(const vector<string>& cmds, vector<Image>& imgs);
