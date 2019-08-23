@@ -5,6 +5,7 @@
 #include <list>
 using namespace std;
 
+// Template hash
 template <typename T1, typename T2>
 class pair_hash 
 {   
@@ -40,20 +41,32 @@ struct myHash
         return hash<Key>()(k);
     }
 };
-// template <typename T1>
-// class pair_hash2 
-// {   
-// public:
-//     //std::size_t operator () (const std::pair<T1,T2> &p) const 
-//     std::size_t operator () (const T1 &p) const 
-//     {
-//         auto h1 = std::hash<T1>{}(p.first);
 
-//         // Mainly for demonstration purposes, i.e. works but is overly simple
-//         // In the real world, use sth. like boost.hash_combine
-//         return h1;  
-//     }
-// };
+/* Function template
+ One final note: Because the function argument passed in for type T could be a class type, and it’s generally not a good idea to pass classes by value, it would be better to make the parameters and return types of our templated function const references:
+When to use return by reference:
+
+When returning a reference parameter
+When returning an element from an array that was passed into the function
+When returning a large struct or class that will not be destroyed at the end of the function (e.g. one that was passed in)
+When not to use return by reference:
+
+When returning variables that were declared inside the function or parameters that were passed by value (use return by value)
+When returning a built-in array or pointer value (use return by address)
+*/
+template<typename T>
+const T& test(const T& x, const T& y)
+{
+    /*Operators, function calls, and function templates
+Template functions will work with both built-in types (e.g. char, int, double, etc…) and classes, with one caveat. When the compiler compiles the template instance, it compiles it just like a normal function. In a normal function, any operators or function calls that you use with your types must be defined, or you will get a compiler error.*/
+    return (x > y) ? x : y;
+}
+
+template<typename T1, typename T2>
+bool test(const T1& x, const T2& y)
+{
+    return (x > y);
+}
 
 
 // To execute C++, please define "int main()"
@@ -76,5 +89,11 @@ int main() {
          std::cout << "{" << key_pair.first << "," << 
              key_pair.second << "}, " << entry.second << '\n';
     }
+    
+    // Call the templated function
+    // Using a function template is extremely straightforward -- you can use it just like any other function
+    cout << test(3, 4) << endl;
+    cout << test(3, 4.3) << endl;
+
     return 0;
 }
