@@ -69,6 +69,9 @@ void blend (Image & img, const Image& other) {
 // ******************************************************************
 
 } // namespace ImgLib
+// 但是有很多不同的function arg啊！！！
+typedef void (*Func)(void); // function pointer type
+typedef std::unordered_map<std::string, Func> script_map;
 
 class Pipeline
 {
@@ -79,6 +82,14 @@ class Pipeline
     // Difference between function pointer and lamdba ---- performance wise
     //http://www.modernescpp.com/index.php/functional-in-c-dispatch-table
 
+    // dispatch table
+  std::unordered_map< const char , std::function<double(double,double)> > dispTable{
+    {'+',[](double a, double b){ return a + b;} },
+    {'-',[](double a, double b){ return a - b;} },
+    {'*',[](double a, double b){ return a * b;} },
+    {'/',[](double a, double b){ return a / b;} } };
+
+    unordered_map<string, >
 
 }
 
