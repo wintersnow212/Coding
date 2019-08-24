@@ -2,7 +2,10 @@
 #include <string>
 using std::cout;
 using std::endl;
-
+/*
+Use Factory Methods to provide more powerful class construction semantics and to hide subclass details.
+However, one potential drawback is that it contains hardcoded knowledge of the available derived classes
+*/
 
 ///
 /// An abstract interface for a 3D renderer.

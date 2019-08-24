@@ -5,6 +5,12 @@
 using std::cout;
 using std::endl;
 
+/*
+To decouple the concrete derived classes from the factory method and to allow new derived classes to be added 
+at run time, you can update the factory class to maintain a map that associates type names to object creation
+callbacks (Alexandrescu, 2001). 
+*/
+
 ///
 /// An abstract interface for plugins to create new renderers.
 ///
