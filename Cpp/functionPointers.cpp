@@ -149,7 +149,21 @@ int main()
 {
     Array_Of_Function_Pointers();
     Array_Of_Member_Function_Pointers();
-    
+    // Dispatch table of function pointer
+    // http://www.newty.de/fpt/fpt.html#chapter2
+
+    // Dispatch table like function pointer or lambda 
+    // Difference between function pointer and lamdba ---- performance wise
+    //http://www.modernescpp.com/index.php/functional-in-c-dispatch-table
+
+    // dispatch table
+    std::unordered_map< const char , std::function<double(double,double)> > dispTable{
+    {'+',[](double a, double b){ return a + b;} },
+    {'-',[](double a, double b){ return a - b;} },
+    {'*',[](double a, double b){ return a * b;} },
+    {'/',[](double a, double b){ return a / b;} } };
+
+
     // store a free function
     std::function<void(int)> f_display = print_num;
     f_display(-9);
