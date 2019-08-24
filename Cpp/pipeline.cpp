@@ -25,6 +25,7 @@ there could be a lot more images and commands.
 #include <unordered_map>
 #include <map>
 #include <memory>
+#include <sstream>
 using namespace std;
 
 // Mock image class.
@@ -66,6 +67,8 @@ void blend (Image & img, const Image& other) {
 // ******************************************************************
 
 } // namespace ImgLib
+
+
 // // 但是有很多不同的function arg啊！！！
 // typedef void (*Func)(void); // function pointer type
 // typedef std::unordered_map<std::string, Func> script_map;
@@ -73,15 +76,15 @@ void blend (Image & img, const Image& other) {
 class IImageOp
 {
 public:
+    IImageOp() {}
     virtual ~IImageOp() {}
     virtual void ImageProc(Image& img) = 0;
-    
 };
 
 class ConvertToGrayScale : public IImageOp
 {
 public:     
-     virtual void ImageProc(Image & img) 
+     virtual void ImageProc(Image & img) override
      {
         cout << img.name() << ": Converting to gray scale" << endl;
      }
@@ -90,24 +93,16 @@ public:
 class Blur : public IImageOp
 {
 public:
-     // virtual ImageOperation(Image& img)
-     // {
-     //    cout << img.name() << ": Converting to gray scale" << endl;
-     // }
      Blur(float factor)
         : m_factor(factor)
      {
 
      }
 
-     virtual void ImageProc(Image & img) 
+     virtual void ImageProc(Image & img) override
      {
         cout << img.name() << ": Blurring with factor " << m_factor << endl;
      }
-     // virtual void ImageOperation(Image & img, float factor) 
-     // {
-     //    cout << img.name() << ": Blurring with factor " << factor << endl;
-     // }
 private:
     float m_factor;
 };
@@ -116,10 +111,7 @@ private:
 class Resize : public IImageOp
 {
 public:
-     // virtual ImageOperation(Image& img)
-     // {
-     //    cout << img.name() << ": Converting to gray scale" << endl;
-     // }
+    
      Resize(int x, int y)
         : m_x(x)
         , m_y(y)
@@ -127,41 +119,28 @@ public:
 
      }
 
-     virtual void ImageProc(Image & img) 
+     virtual void ImageProc(Image & img) override
      {
         cout << img.name() << ": Resizing img with x = " << m_x << " and y = " << m_y << endl;
      }
-     // virtual void ImageOperation(Image & img, float factor) 
-     // {
-     //    cout << img.name() << ": Blurring with factor " << factor << endl;
-     // }
 private:
     int m_x;
     int m_y;
 };
 
-
 class Blend : public IImageOp
 {
 public:
-     // virtual ImageOperation(Image& img)
-     // {
-     //    cout << img.name() << ": Converting to gray scale" << endl;
-     // }
      Blend(Image img)
         :other(img)
      {
 
      }
 
-     virtual void ImageProc(Image & img) 
+     virtual void ImageProc(Image & img) override
      {
         cout << img.name() << ": Blending with " << other.name() << endl;
      }
-     // virtual void ImageOperation(Image & img, float factor) 
-     // {
-     //    cout << img.name() << ": Blurring with factor " << factor << endl;
-     // }
 private:
    Image other;
 };
@@ -169,19 +148,15 @@ private:
 class Pipeline
 {
 public:
-    typedef IImageOp* (*CreateCallback)();
-//     void RemoveImageOp(const std::string& type,
-//                       CreateCallback cb)
-//     {
-//         m_ops.erase(type);
-//     }
-    
     void AddImageOp(const std::string& type,
                     IImageOp* imgOp)
-    {
-        //m_ops[type] = imgOp;
-        
+    {   
         m_ops.insert({type, imgOp});
+    }
+    
+    void removeImageOp(const std::string& type)
+    {
+        m_ops.erase(type);    
     }
     
     void ImageOp(const std::string& type,
@@ -189,8 +164,8 @@ public:
     {
         m_ops[type]->ImageProc(img);
     }
-          
-    
+     
+   
     // void AddImageOpSmart(const std::string& type,
     //                      unique_ptr<IImageOp> imgOp)
     // {
@@ -204,13 +179,25 @@ public:
         m_smartOps.insert({type, move(imgOp)});
     }
     
-                                 
+                            
     void ImageOpSmart(const std::string& type,
                       Image& img)
     {
         m_smartOps[type]->ImageProc(img);
     }
     
+    ~Pipeline()
+    {
+        for (auto& i : m_ops)
+        {
+            if (i.second != nullptr)
+            {
+                delete i.second;
+            }
+        }
+    }
+    
+    // Copy constructor!!!!???
     // IImageOp* CreateImageOp(const std::string& type)
     // {
     //     ImageOpMap::iterator it = m_ops.find(type);
@@ -275,17 +262,30 @@ void process(const vector<string>& operations, vector<Image>& imgs)
      //IImageOp* c = p.CreateImageOp("ConvertToGrayScale");
     // p.AddImageOp("ConvertToGrayScale", new ConvertToGrayScale());
     // p.AddImageOp("Blur", new Blur(3.1));
+    // p.AddImageOp("Resize", new Resize(256, 256));
+    // p.AddImageOp("Blend", new Blend(imgs[2]));
     // p.ImageOp("ConvertToGrayScale", imgs[0]);
     // p.ImageOp("Blur", imgs[1]);
+    // p.ImageOp("Resize", imgs[0]);
+    // p.ImageOp("Blend", imgs[1]);
+    for (auto& i : imgs)
+    {
+        for (auto& op : operations)
+        {
+            istringstream in(op);
+            string str;
+            while (in.eof() == false)
+            {
+                getline(in, str, ' ');
+                
+            }
+        }
+    }
     
-    
-    
-    
-    
-    // p.AddImageOpSmart("ConvertToGrayScale", make_unique<ConvertToGrayScale>());
-    // p.AddImageOpSmart("Blur", make_unique<Blur>(3.1));
-    // p.AddImageOpSmart("Resize", make_unique<Resize>(256, 256));
-    // p.AddImageOpSmart("Blend", make_unique<Blend>(imgs[2]));
+    p.AddImageOpSmart("ConvertToGrayScale", make_unique<ConvertToGrayScale>());
+    p.AddImageOpSmart("Blur", make_unique<Blur>(3.1));
+    p.AddImageOpSmart("Resize", make_unique<Resize>(256, 256));
+    p.AddImageOpSmart("Blend", make_unique<Blend>(imgs[2]));
     
     p.AddImageOpSmart("ConvertToGrayScale", move(make_unique<ConvertToGrayScale>()));
     p.AddImageOpSmart("Blur", move(make_unique<Blur>(3.1)));
