@@ -279,13 +279,18 @@ void process(const vector<string>& operations, vector<Image>& imgs)
     // p.ImageOp("Blur", imgs[1]);
     
     
-    p.AddImageOpSmart("ConvertToGrayScale", make_unique<ConvertToGrayScale>());
-    p.AddImageOpSmart("Blur", make_unique<Blur>(3.1));
-    p.AddImageOpSmart("Resize", make_unique<Resize>(256, 256));
-    p.AddImageOpSmart("Blend", make_unique<Blend>(imgs[2]));
     
-    // p.AddImageOpSmart("ConvertToGrayScale", move(make_unique<ConvertToGrayScale>()));
-    // p.AddImageOpSmart("Blur", move(make_unique<Blur>(3.1)));
+    
+    
+    // p.AddImageOpSmart("ConvertToGrayScale", make_unique<ConvertToGrayScale>());
+    // p.AddImageOpSmart("Blur", make_unique<Blur>(3.1));
+    // p.AddImageOpSmart("Resize", make_unique<Resize>(256, 256));
+    // p.AddImageOpSmart("Blend", make_unique<Blend>(imgs[2]));
+    
+    p.AddImageOpSmart("ConvertToGrayScale", move(make_unique<ConvertToGrayScale>()));
+    p.AddImageOpSmart("Blur", move(make_unique<Blur>(3.1)));
+    p.AddImageOpSmart("Resize", move(make_unique<Resize>(256, 256)));
+    p.AddImageOpSmart("Blend", move(make_unique<Blend>(imgs[2])));
       
     p.ImageOpSmart("ConvertToGrayScale", imgs[0]);
     p.ImageOpSmart("Blur", imgs[1]);
