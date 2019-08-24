@@ -1,4 +1,6 @@
 #include <iostream>
+#include <functional>
+#include <vector>
 using namespace std;
 //------------------------------------------------------------------------------------
 // 2.8 How to Use Arrays of Function Pointers
@@ -91,9 +93,73 @@ void Array_Of_Member_Function_Pointers()
    cout << (instance.*funcArr2[0])(89, 'a', 'b') << endl;
 }
 
+
+typedef void (*func_ptr_t)(uint32_t);
+std::vector<func_ptr_t> callbacks_;
+
+// Register a callback.
+void register_callback(const func_ptr_t &cb)
+{
+    // add callback to end of callback list
+    callbacks_.push_back(cb);
+}
+
+/*
+C++11 provides a std::function type. This type can be considered a safer version of a function pointer, 
+and can reference any type of Callable target.
+Like many of the C++11 features that I enjoy, std::function provides much better type safety than a simple raw function pointer. 
+You can't call the function with the wrong type/number of arguments!
+*/
+
+typedef std::function<void(uint32_t)> cb_t;
+std::vector<cb_t> callbacks2_;
+// Register a callback.
+void register_callback2(const cb_t &cb)
+{
+    // add callback to end of callback list
+    callbacks2_.push_back(cb);
+}
+
+
+
+template <typename T>
+std::function<void*()> castToVoidFunc (T* (*func)())
+{
+  return [=](){ return func(); };
+}
+
+struct Foo {
+    Foo(int num) : num_(num) {}
+    void print_add(int i) const { std::cout << num_+i << '\n'; }
+    int num_;
+};
+ 
+void print_num(int i)
+{
+    std::cout << i << '\n';
+}
+ 
+struct PrintNum {
+    void operator()(int i) const
+    {
+        std::cout << i << '\n';
+    }
+};
 int main()
 {
     Array_Of_Function_Pointers();
     Array_Of_Member_Function_Pointers();
+    
+    // store a free function
+    std::function<void(int)> f_display = print_num;
+    f_display(-9);
+ 
+    // store a lambda
+    std::function<void()> f_display_42 = []() { print_num(42); };
+    f_display_42();
+ 
+    // store the result of a call to std::bind
+    std::function<void()> f_display_31337 = std::bind(print_num, 31337);
+    f_display_31337();
     return 0;
 }
