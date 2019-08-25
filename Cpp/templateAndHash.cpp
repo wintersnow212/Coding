@@ -23,6 +23,17 @@ public:
     }
 };
 
+typedef std::tuple<int, int, int> keyType;
+struct key_hash
+{
+    std::size_t operator()(const keyType& k) const
+    {
+        // 这是基本写法但是这样写的话如果有多个type就得declare多个 hash variable
+        std::hash<int> intHash; 
+        //return std::hash<int>{}(get<0>(k)) ^ std::hash<int>{}(get<1>(k)) ^ std::hash<int>{}(get<2>(k));
+        return intHash(get<0>(k)) ^ intHash(get<1>(k)) ^ intHash(get<2>(k));
+    }
+};
 
 template <typename Key>
 struct myHash
