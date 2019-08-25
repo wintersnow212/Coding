@@ -13,6 +13,7 @@ public:
     //std::size_t operator () (const std::pair<T1,T2> &p) const 
     std::size_t operator () (const pair<T1, T2> &p) const 
     {
+        // 这里1.不能忘了define template type 2.不能忘了{}
         auto h1 = std::hash<T1>{}(p.first);
         auto h2 = std::hash<T2>{}(p.second);
 
