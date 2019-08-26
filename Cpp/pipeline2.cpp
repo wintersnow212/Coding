@@ -383,22 +383,13 @@ void process(const vector<string>& operations, vector<Image>& imgs)
                 imageOp = Pipeline::GetImageOp(str, ConvertToGrayScale::Create);
             }
             else if (str == "Blur") {
-                //IImageOp* imageOp = Pipeline::CreateImageOp("Blur");
-                //shared_ptr<IImageOp> imageOp = Pipeline::CreateImageOp("Blur");
-                //imageOp = Pipeline::CreateImageOp("Blur");
                 imageOp = Pipeline::GetImageOp(str, Blur::Create);
             }
             else if (str == "Resize") {
-                //IImageOp* imageOp = Pipeline::CreateImageOp("Resize");
-                // imageOp = Pipeline::CreateImageOp("Resize");
                 imageOp = Pipeline::GetImageOp(str, Resize::Create);
             }
             else if (str == "BlendWith") {
-                //IImageOp* imageOp = Pipeline::CreateImageOp("BlendWith");
-                //shared_ptr<IImageOp> imageOp = Pipeline::CreateImageOp("BlendWith");
-                //imageOp = Pipeline::CreateImageOp("BlendWith");
                 imageOp = Pipeline::GetImageOp(str, Blend::Create);
-                
             }
             imageOp->ParseOp(op);
             imageOp->ImageProc(i);
