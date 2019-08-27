@@ -239,9 +239,32 @@ Auto_ptr4<Resource> generateResource()
     return res; // this return value will invoke the move constructor
 }
 
+
+template <typename T>
+void func(T t) {
+    cout << "in func" << endl;
+}
+
+template <typename T>
+void relay(T&& t) {
+    cout << "in relay" << endl;
+    func(t);
+    // perfect forward
+    // 这时，我们需要std::forward<T>()。与std::move()相区别的是，
+    // move()会无条件的将一个参数转换成右值，而forward()则会保留参数的左右值类型
+    func(std::forward<T>(t));
+}
+Test createTest() {
+    return Test();
+}
+
+
 int main()
 {
-    
+    // Test perfect forwarding!!!
+    relay(Test());
+   
+  
     std::string str = "Hello";
     std::vector<std::string> vec;
  
