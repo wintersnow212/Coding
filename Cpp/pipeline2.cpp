@@ -83,29 +83,27 @@ public:
     IImageOp() {}
     virtual ~IImageOp() {}
     virtual void ImageProc(Image& img) = 0;
-    virtual void ParseOp(const string& str) = 0;
+    //virtual void ParseOp(const string& str) = 0;
+    virtual void ParseOp(istringstream& in) = 0;
 };
 
 class ConvertToGrayScale : public IImageOp
 {
 public:
      //static IImageOp* Create() { return new ConvertToGrayScale; }
-     static shared_ptr<IImageOp> Create() {return make_shared<ConvertToGrayScale>();}
-     virtual void ImageProc(Image & img) override
+     static shared_ptr<IImageOp> Create() { return make_shared<ConvertToGrayScale>(); }
+     virtual void ImageProc(Image& img) override
      {
         cout << img.name() << ": Converting to gray scale" << endl;
      }
      
-     virtual void ParseOp(const string& str)
+//      virtual void ParseOp(const string& str)
+//      {
+     
+//      }
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
-        string s;
-        int i = 0;
-        while (in >> s) {
-            if (i == 0) {
-                continue;
-            }   
-        }
+     
      }
 };
 
@@ -126,21 +124,27 @@ public:
      }
      
      
-     virtual void ParseOp(const string& str)
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
         string s;
-        int i = 0;
-        while (in >> s)
-        {
-            if (i == 1)
-            {
-               m_factor = stof(s);
-            }
-
-            i++;
-        }
+        in >> s;
+        m_factor = stof(s);
      }
+//      virtual void ParseOp(const string& str)
+//      {
+//         istringstream in(str);
+//         string s;
+//         int i = 0;
+//         while (in >> s)
+//         {
+//             if (i == 1)
+//             {
+//                m_factor = stof(s);
+//             }
+
+//             i++;
+//         }
+//      }
      
 private:
     float m_factor;
@@ -155,30 +159,45 @@ public:
         , m_y(y)
      { }
      //static IImageOp* Create() { return new Resize; }
-     static shared_ptr<IImageOp> Create() {return make_shared<Resize>();}
-     virtual void ImageProc(Image & img) override
+     static shared_ptr<IImageOp> Create() { return make_shared<Resize>(); }
+     virtual void ImageProc(Image& img) override
      {
         cout << img.name() << ": Resizing img with x = " << m_x << " and y = " << m_y << endl;
      }
      
-     
-     virtual void ParseOp(const string& str)
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
         string s;
         int i = 0;
         while (in >> s) {
-            if (i == 1)
+            if (i == 0)
             {
                 m_x = stoi(s);
             }
-            else if (i == 2)
+            else if (i == 1)
             {
                 m_y = stoi(s);
             }
             i++;
         }
      }
+     // virtual void ParseOp(const string& str)
+     // {
+     //    istringstream in(str);
+     //    string s;
+     //    int i = 0;
+     //    while (in >> s) {
+     //        if (i == 1)
+     //        {
+     //            m_x = stoi(s);
+     //        }
+     //        else if (i == 2)
+     //        {
+     //            m_y = stoi(s);
+     //        }
+     //        i++;
+     //    }
+     // }
 private:
     int m_x;
     int m_y;
@@ -189,31 +208,37 @@ class Blend : public IImageOp
 public:
       
      Blend() { }
-     
-     Blend(Image img)
-        :other(&img)
-     {
-
-     }
     
      //static IImageOp* Create() { return new Blend; }
      static shared_ptr<IImageOp> Create() {return make_shared<Blend>();}
-     virtual void ImageProc(Image & img) override
+     virtual void ImageProc(Image& img) override
      {
         cout << img.name() << ": Blending with " << other->name() << endl;
      }
      
-     virtual void ParseOp(const string& str) override
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
         string s;
-        // How to resolve this ????
-        // Assume that the Image class constructor will take care of downloading
-        // and loading the blend image used in the BlendWith operation.
-        while (in >> s)
+        //while (in >> s)
         {
             other = new Image("ImageUnknow");
         }
+     }
+     // virtual void ParseOp(const string& str) override
+     // {
+     //    istringstream in(str);
+     //    string s;
+     //    // How to resolve this ????
+     //    // Assume that the Image class constructor will take care of downloading
+     //    // and loading the blend image used in the BlendWith operation.
+     //    while (in >> s)
+     //    {
+     //        other = new Image("ImageUnknow");
+     //    }
+     // }
+     ~ Blend()
+     {
+        delete other;
      }
 private:
    Image* other;
@@ -375,7 +400,8 @@ void process(const vector<string>& operations, vector<Image>& imgs)
         {
             istringstream in(op);
             string str;
-            getline(in, str, ' ');
+            //getline(in, str, ' ');
+            in >> str;
             // 这里不解析怎么知道是谁的create??
             if (str == "ConvertToGrayScale") {                
                 //shared_ptr<IImageOp> imageOp = Pipeline::CreateImageOp("ConvertToGrayScale");
@@ -391,25 +417,12 @@ void process(const vector<string>& operations, vector<Image>& imgs)
             else if (str == "BlendWith") {
                 imageOp = Pipeline::GetImageOp(str, Blend::Create);
             }
-            imageOp->ParseOp(op);
+            //imageOp->ParseOp(op);
+            imageOp->ParseOp(in);
             imageOp->ImageProc(i);
         }
     }
     
     cout << imageOp.use_count() << endl;
 //     // 这个不好 这样你只改变一下参数就要新create一个instance吗？？？？！！！
-//     p.AddImageOpSmart("ConvertToGrayScale", make_unique<ConvertToGrayScale>());
-//     p.AddImageOpSmart("Blur", make_unique<Blur>(3.1));
-//     p.AddImageOpSmart("Resize", make_unique<Resize>(256, 256));
-//     p.AddImageOpSmart("Blend", make_unique<Blend>(imgs[2]));
-    
-//     p.AddImageOpSmart("ConvertToGrayScale", move(make_unique<ConvertToGrayScale>()));
-//     p.AddImageOpSmart("Blur", move(make_unique<Blur>(3.1)));
-//     p.AddImageOpSmart("Resize", move(make_unique<Resize>(256, 256)));
-//     p.AddImageOpSmart("Blend", move(make_unique<Blend>(imgs[2])));
-      
-//     p.ImageOpSmart("ConvertToGrayScale", imgs[0]);
-//     p.ImageOpSmart("Blur", imgs[1]);
-//     p.ImageOpSmart("Resize", imgs[0]);
-//     p.ImageOpSmart("Blend", imgs[1]);
 }
