@@ -262,36 +262,36 @@ public:
     
     // 这里只能create 一种类型？？？不能有不同的constructor
     //typedef IImageOp* (*CreateCallback)();
-    typedef shared_ptr<IImageOp> (*CreateCallback)();
+     typedef shared_ptr<IImageOp> (*CreateCallback)();
     
-    static void RegisterImageOp(const string &type, CreateCallback cb)
-    {
-        if (m_OpCreateMap.find(type) == m_OpCreateMap.end())
-            m_OpCreateMap[type] = cb;
-    }
+//     static void RegisterImageOp(const string &type, CreateCallback cb)
+//     {
+//         if (m_OpCreateMap.find(type) == m_OpCreateMap.end())
+//             m_OpCreateMap[type] = cb;
+//     }
     
-    static shared_ptr<IImageOp> CreateImageOp(const std::string &type)
-    {
-        if (m_sharedOps.find(type) == m_sharedOps.end())
-        {
-            CallbackMap::iterator it = m_OpCreateMap.find(type);
+//     static shared_ptr<IImageOp> CreateImageOp(const std::string &type)
+//     {
+//         if (m_sharedOps.find(type) == m_sharedOps.end())
+//         {
+//             CallbackMap::iterator it = m_OpCreateMap.find(type);
 
-            if (it != m_OpCreateMap.end())
-            {
-                // call the creation callback to construct this derived type
-                auto ret = (it->second)();
-                m_sharedOps[type] = ret;
-                return ret;
-            }
+//             if (it != m_OpCreateMap.end())
+//             {
+//                 // call the creation callback to construct this derived type
+//                 auto ret = (it->second)();
+//                 m_sharedOps[type] = ret;
+//                 return ret;
+//             }
             
-            return nullptr;
-        }
-        else
-        {
-            return m_sharedOps[type];
-        }
+//             return nullptr;
+//         }
+//         else
+//         {
+//             return m_sharedOps[type];
+//         }
         
-    }
+//     }
     
     static shared_ptr<IImageOp> GetImageOp(const std::string &type, CreateCallback cb)
     {
@@ -325,8 +325,8 @@ private:
     static ImageOpShared m_sharedOps;
     
     
-    typedef map<std::string, void*> VaridicMap;
-    static VaridicMap m_varMap;
+    // typedef map<std::string, void*> VaridicMap;
+    // static VaridicMap m_varMap;
 };
 
 // Init static member!!!!
