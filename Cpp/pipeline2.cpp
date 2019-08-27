@@ -111,10 +111,6 @@ class Blur : public IImageOp
 {
 public:
      Blur( ) { }
-     
-     Blur(float factor)
-        : m_factor(factor)
-     { }
     
      //static IImageOp* Create() { return new Blur; }
      static shared_ptr<IImageOp> Create() {return make_shared<Blur>();}
@@ -154,10 +150,6 @@ class Resize : public IImageOp
 {
 public:
      Resize( ) { }
-     Resize(int x, int y)
-        : m_x(x)
-        , m_y(y)
-     { }
      //static IImageOp* Create() { return new Resize; }
      static shared_ptr<IImageOp> Create() { return make_shared<Resize>(); }
      virtual void ImageProc(Image& img) override
@@ -270,28 +262,7 @@ public:
 //             m_OpCreateMap[type] = cb;
 //     }
     
-//     static shared_ptr<IImageOp> CreateImageOp(const std::string &type)
-//     {
-//         if (m_sharedOps.find(type) == m_sharedOps.end())
-//         {
-//             CallbackMap::iterator it = m_OpCreateMap.find(type);
 
-//             if (it != m_OpCreateMap.end())
-//             {
-//                 // call the creation callback to construct this derived type
-//                 auto ret = (it->second)();
-//                 m_sharedOps[type] = ret;
-//                 return ret;
-//             }
-            
-//             return nullptr;
-//         }
-//         else
-//         {
-//             return m_sharedOps[type];
-//         }
-        
-//     }
     
     static shared_ptr<IImageOp> GetImageOp(const std::string &type, CreateCallback cb)
     {
@@ -375,24 +346,6 @@ void process(const vector<string>& operations, vector<Image>& imgs)
     //Pipeline p;
     // 这里得free啊 还是用smart pointer比较好
 
-//     for (auto& op : operations)
-//     {
-//         istringstream in(op);
-//         string str;
-//         getline(in, str, ' ');
-//         // 这里不解析怎么知道是谁的create??        
-//         // 有了这个register函数的话 就不用在pipeline class里面解析命令了！！！ 
-//         if (str == "ConvertToGrayScale")
-//             Pipeline::RegisterImageOp(str, ConvertToGrayScale::Create);
-//         else if (str == "Blur")
-//             Pipeline::RegisterImageOp(str, Blur::Create);
-//         else if (str == "Resize")
-//             Pipeline::RegisterImageOp(str, Resize::Create);
-//         else if (str == "BlendWith") {
-//             Pipeline::RegisterImageOp(str, Blend::Create);
-//         }
-//     }
-    
     shared_ptr<IImageOp> imageOp;
     for (auto& i : imgs) 
     {
