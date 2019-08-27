@@ -280,13 +280,7 @@ public:
         }
         
     }
-    
-    
-    ~Pipeline()
-    {
-
-    }
-    
+    ~Pipeline() { }
 private:
     
     typedef map<std::string, CreateCallback> CallbackMap;
