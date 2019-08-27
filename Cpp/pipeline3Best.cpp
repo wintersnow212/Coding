@@ -176,9 +176,6 @@ private:
     
     typedef unordered_map<std::string, shared_ptr<IImageOp>> ImageOpShared;
     static ImageOpShared m_sharedOps;
-    
-    typedef unordered_map<std::string, void*> VaridicMap;
-    static VaridicMap m_varMap;
 };
 
 // Init static member!!!!
