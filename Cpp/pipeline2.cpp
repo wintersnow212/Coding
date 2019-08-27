@@ -283,19 +283,11 @@ public:
     ~Pipeline() { }
 private:
     
-    typedef map<std::string, CreateCallback> CallbackMap;
-    static CallbackMap m_OpCreateMap;
-    
     typedef map<std::string, shared_ptr<IImageOp>> ImageOpShared;
     static ImageOpShared m_sharedOps;
-    
-    
-    // typedef map<std::string, void*> VaridicMap;
-    // static VaridicMap m_varMap;
 };
 
 // Init static member!!!!
-Pipeline::CallbackMap Pipeline::m_OpCreateMap;
 Pipeline::ImageOpShared Pipeline::m_sharedOps;
 
 // Forward declaration of the process function that you have to write (below).
