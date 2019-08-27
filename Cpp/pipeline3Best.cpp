@@ -83,7 +83,8 @@ public:
     IImageOp() {}
     virtual ~IImageOp() {}
     virtual void ImageProc(Image& img) = 0;
-    virtual void ParseOp(const string& str) = 0;
+    //virtual void ParseOp(const string& str) = 0;
+    virtual void ParseOp(istringstream& in) = 0;
 };
 
 class Pipeline
@@ -190,6 +191,11 @@ struct Registrer
     template<typename F>
     Registrer(std::string name, F func)
     {
+        // 这里forward delcaration 不会work的
+        /* The forward declaration is an "incomplete type", the only thing you can do with such a type is instantiate a pointer to it, or reference it in a function declaration (i.e. and argument or return type in a function prototype). In line 52 in your code, you are attempting to instantiate an object.
+
+At that point the compiler has no knowledge of the object's size nor its constructor, so cannot instantiate an object.
+*/
         Pipeline::m_OpCreateMap[name] = func;
     }
 };
@@ -204,16 +210,20 @@ public:
         cout << img.name() << ": Converting to gray scale" << endl;
      }
      
-     virtual void ParseOp(const string& str)
+     // virtual void ParseOp(const string& str)
+     // {
+     //    istringstream in(str);
+     //    string s;
+     //    int i = 0;
+     //    while (in >> s) {
+     //        if (i == 0) {
+     //            continue;
+     //        }   
+     //    }
+     // }
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
-        string s;
-        int i = 0;
-        while (in >> s) {
-            if (i == 0) {
-                continue;
-            }   
-        }
+     
      }
 private:
     static Registrer reg;
@@ -238,20 +248,27 @@ public:
      }
      
      
-     virtual void ParseOp(const string& str)
-     {
-        istringstream in(str);
-        string s;
-        int i = 0;
-        while (in >> s)
-        {
-            if (i == 1)
-            {
-               m_factor = stof(s);
-            }
+//      virtual void ParseOp(const string& str)
+//      {
+//         istringstream in(str);
+//         string s;
+//         int i = 0;
+//         while (in >> s)
+//         {
+//             if (i == 1)
+//             {
+//                m_factor = stof(s);
+//             }
 
-            i++;
-        }
+//             i++;
+//         }
+//      }
+     
+     virtual void ParseOp(istringstream& in)
+     {
+        string s;
+        in >> s;
+        m_factor = stof(s);
      }
      
 private:
@@ -276,24 +293,39 @@ public:
         cout << img.name() << ": Resizing img with x = " << m_x << " and y = " << m_y << endl;
      }
      
-     
-     virtual void ParseOp(const string& str)
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
         string s;
         int i = 0;
         while (in >> s) {
-            if (i == 1)
+            if (i == 0)
             {
                 m_x = stoi(s);
             }
-            else if (i == 2)
+            else if (i == 1)
             {
                 m_y = stoi(s);
             }
             i++;
         }
      }
+     // virtual void ParseOp(const string& str)
+     // {
+     //    istringstream in(str);
+     //    string s;
+     //    int i = 0;
+     //    while (in >> s) {
+     //        if (i == 1)
+     //        {
+     //            m_x = stoi(s);
+     //        }
+     //        else if (i == 2)
+     //        {
+     //            m_y = stoi(s);
+     //        }
+     //        i++;
+     //    }
+     // }
 private:
     int m_x;
     int m_y;
@@ -320,18 +352,26 @@ public:
         cout << img.name() << ": Blending with " << other->name() << endl;
      }
      
-     virtual void ParseOp(const string& str) override
+     virtual void ParseOp(istringstream& in)
      {
-        istringstream in(str);
         string s;
-        // How to resolve this ????
-        // Assume that the Image class constructor will take care of downloading
-        // and loading the blend image used in the BlendWith operation.
-        while (in >> s)
+        //while (in >> s)
         {
             other = new Image("ImageUnknow");
         }
      }
+     // virtual void ParseOp(const string& str) override
+     // {
+     //    istringstream in(str);
+     //    string s;
+     //    // How to resolve this ????
+     //    // Assume that the Image class constructor will take care of downloading
+     //    // and loading the blend image used in the BlendWith operation.
+     //    while (in >> s)
+     //    {
+     //        other = new Image("ImageUnknow");
+     //    }
+     // }
 private:
    Image* other;
    static Registrer reg;
@@ -387,9 +427,11 @@ void process(const vector<string>& operations, vector<Image>& imgs)
             //这里不解析怎么知道是谁的create?? static register 提前register好
             istringstream in(op);
             string str;
-            getline(in, str, ' ');
+            //getline(in, str, ' ');
+            in >> str;
             imageOp = Pipeline::CreateImageOp(str);
-            imageOp->ParseOp(op);
+            //imageOp->ParseOp(op);
+            imageOp->ParseOp(in);
             imageOp->ImageProc(i);
         }
     }
