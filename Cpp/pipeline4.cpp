@@ -91,8 +91,8 @@ int main() {
   vector<string> operations = {"ConvertToGrayScale",
                                "Blur 3.1",
                                "Resize 256 256",
-                               "Blur 2.5"};
-                               //"BlendWith http://www.solstation.com/stars/earth3au.jpg"};
+                               "Blur 2.5",
+                               "BlendWith http://www.solstation.com/stars/earth3au.jpg"};
 
   // The images to process.
   // This is a small number of images to allow testing the process function.
@@ -171,7 +171,6 @@ public:
     virtual void ImageParse(istringstream& in)
     {
         string str;
-        int idx = 0;
         in >> str;
         m_x = stoi(str);
         in >> str;
@@ -183,16 +182,30 @@ private:
 };
 
 
-//class Blend : public IImageOp
-//{
-//public:
-//    static IImageOp* Create() {return new Blend(); }
+class Blend : public IImageOp
+{
+public:
+    static shared_ptr<IImageOp> Create() {return make_shared<Blend>(); }
     
-//    virtual ImageProc(Image & img) override
-//    {
-//        ImgLib::blend(img, other);
-//    }
-//};
+    virtual void ImageProc(Image& img) override
+    {
+        ImgLib::blend(img, *other);
+    }
+    
+    virtual void ImageParse(istringstream& in)
+    {
+        string str;
+        in >> str;
+        other = new Image(str);
+    }
+    
+    ~Blend()
+    {
+        delete other;
+    }
+private:
+    Image* other;
+};
 
 class Pipeline
 {
@@ -223,15 +236,17 @@ private:
     // Blur
     // typedef unordered_map<string, shared_ptr<IImageOp>> ImageOp;
     // static ImageOp m_ops;
-      
     typedef unordered_map<string, CreateCallback> CreateMap;
     static CreateMap m_opCreate;
 };
 
-Pipeline:: CreateMap Pipeline::m_opCreate = {
+Pipeline:: CreateMap Pipeline::m_opCreate = 
+{
       {"ConvertToGrayScale", ConvertToGrayScale::Create},
       {"Blur", Blur::Create},
-      {"Resize", Resize::Create}};
+      {"Resize", Resize::Create},
+      {"BlendWith", Blend::Create}
+};
 
 //Pipeline::CreateMap Pipeline::m_opCreate;
 
