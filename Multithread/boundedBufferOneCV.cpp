@@ -28,7 +28,7 @@ class Queue
     // thread signaled the condition variable
     // 所以我们需要while loop 再检查一遍
     // https://www.justsoftwaresolutions.co.uk/threading/condition-variable-spurious-wakes.html
-    // http://blog.vladimirprus.com/2005/07/spurious-wakeups.html
+    // https://github.com/angrave/SystemProgramming/wiki/Synchronization,-Part-5:-Condition-Variables
     while (queue_.empty())
     {
       	/* why the “pop”s don’t need “mlock.unlock();
