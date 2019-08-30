@@ -27,6 +27,7 @@ void Convolve(int N, int M, double *input, double *output, double *kernel) {
   // output[i][j] = input[i-2][j-2] * kernel[0][0] +
   //                input[i-1][j-2] * kernel[1][0] +
   //                .... etc for 25 multiply adds in total ...
+    // https://blog.csdn.net/gotowu/article/details/48806397
     int kfR = 0;
     int kfC = 0;
     int rr  = 0;
@@ -37,14 +38,19 @@ void Convolve(int N, int M, double *input, double *output, double *kernel) {
         {
             for (int kR = 0; kR < M; ++kR)
             {
+                // （1）将h先上下翻转
                 kfR = M - 1 - kR;
                 
                 for (int kC = 0; kC < M; ++kC)
                 {
+                    // (2) 再左右翻转
                     kfC = M - 1 - kC;
                     
-                    rr = r + (kfR - (M/2));
-                    cc = c + (kfC - (M/2));
+                    // rr = r + (kfR - (M/2));
+                    // cc = c + (kfC - (M/2));
+                    // 将二次翻转后的h与x进行correlation运算，即 二次翻转后的h依次覆盖x，同时对应元素相乘并相加
+                    rr = r + ((M/2) - kfR);
+                    cc = c + ((M/2) - kfC);
                     //cc = c + ((M/2) - kfC);
                     
                     if (rr < 0 || rr >= N || cc < 0 || cc >= N)
@@ -56,11 +62,58 @@ void Convolve(int N, int M, double *input, double *output, double *kernel) {
                     //output[r][c] += (input[rr][cc] + kernel[kfR][kfC]);
                     output[r * N + c] +=
                         (input[rr * N +cc] * kernel[kfR * M + kfC]);
+                    
+                    // output[r * N + c] +=
+                    //     (input[r * N +c] * kernel[kfR * M + kfC]);
                 }
             }
                 
         }
     }
+//     int i, j, m, n, mm, nn;
+//     int kCenterX, kCenterY;                         // center index of kernel
+//     float sum;                                      // temp accumulation buffer
+//     int rowIndex, colIndex;
+
+//     // check validity of params
+//     // if(!in || !out || !kernel) return false;
+//     // if(dataSizeX <= 0 || kernelSizeX <= 0) return false;
+//     int dataSizeX = N;
+//     int dataSizeY = N;
+//     int kernelSizeX = M;
+//     int kernelSizeY = M;
+//     // find center position of kernel (half of kernel size)
+//     kCenterX = kernelSizeX / 2;
+//     kCenterY = kernelSizeY / 2;
+
+//     for(i=0; i < dataSizeY; ++i)                // rows
+//     {
+//         for(j=0; j < dataSizeX; ++j)            // columns
+//         {
+//             sum = 0;                            // init to 0 before sum
+//             for(m=0; m < kernelSizeY; ++m)      // kernel rows
+//             {
+//                 mm = kernelSizeY - 1 - m;       // row index of flipped kernel
+
+//                 for(n=0; n < kernelSizeX; ++n)  // kernel columns
+//                 {
+//                     nn = kernelSizeX - 1 - n;   // column index of flipped kernel
+
+//                     // index of input signal, used for checking boundary
+//                     rowIndex = i + (kCenterY - mm);
+//                     colIndex = j + (kCenterX - nn);
+
+//                     // ignore input samples which are out of bound
+//                     if(rowIndex >= 0 && rowIndex < dataSizeY &&
+//                        colIndex >= 0 && colIndex < dataSizeX)
+//                         output[dataSizeX * i + j] += 
+//                         input[dataSizeX * rowIndex + colIndex] * kernel[kernelSizeX * mm + nn];
+//                 }
+//             }
+//         }
+//     }
+
+    //return true;
 }
 
 //--------------------------------------------------------------------------
@@ -119,3 +172,17 @@ int main() {
   printf("Success!\n");
   return 0;
 }
+
+/*
+Your previous Python 2 content is preserved below:
+
+# This is a sandbox to experiment with CoderPad's execution capabilities.
+# It's a temporary, throw-away session only visible to you.
+
+def say_hello():
+    print 'Hello, World'
+
+for i in xrange(5):
+    say_hello()
+
+ */
