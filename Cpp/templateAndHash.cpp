@@ -13,8 +13,11 @@ public:
     //std::size_t operator () (const std::pair<T1,T2> &p) const 
     std::size_t operator () (const pair<T1, T2> &p) const 
     {
-        // 这里1.不能忘了define template type 2.不能忘了{}
-        auto h1 = std::hash<T1>{}(p.first);
+        // 这里1.不能忘了define template type 2.不能忘了()
+        // auto h1 = std::hash<T1>{}(p.first);
+        // auto h2 = std::hash<T2>{}(p.second);
+        // 感觉()是构建了一个hash object!!!
+        auto h1 = std::hash<T1>()(p.first);
         auto h2 = std::hash<T2>{}(p.second);
 
         // Mainly for demonstration purposes, i.e. works but is overly simple
@@ -57,12 +60,10 @@ struct myHash
 /* Function template
  One final note: Because the function argument passed in for type T could be a class type, and it’s generally not a good idea to pass classes by value, it would be better to make the parameters and return types of our templated function const references:
 When to use return by reference:
-
 When returning a reference parameter
 When returning an element from an array that was passed into the function
 When returning a large struct or class that will not be destroyed at the end of the function (e.g. one that was passed in)
 When not to use return by reference:
-
 When returning variables that were declared inside the function or parameters that were passed by value (use return by value)
 When returning a built-in array or pointer value (use return by address)
 */
@@ -109,3 +110,18 @@ int main() {
 
     return 0;
 }
+
+
+/* 
+Your previous Python 2 content is preserved below:
+
+# This is a sandbox to experiment with CoderPad's execution capabilities.
+# It's a temporary, throw-away session only visible to you.
+
+def say_hello():
+    print 'Hello, World'
+
+for i in xrange(5):
+    say_hello()
+
+ */
