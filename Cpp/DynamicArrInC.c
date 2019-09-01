@@ -1,3 +1,4 @@
+// https://www.happybearsoftware.com/implementing-a-dynamic-array
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
