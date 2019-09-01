@@ -27,10 +27,18 @@ Word Reverse(Word w)
     return result;
 }
 
+int bitShiftReverse(int val)
+{
+    return ((val & 0x000000ff) << 24 | (val & 0x0000ff00) << 8 |
+            (val & 0x00ff0000) >> 8  | (val & 0xff000000) >> 24);
+}
 int main()
 {
     Word a;
     a.dword = 0x12345678;
     printf("Reverse byte order: %2x\n\n", Reverse(a).dword);
+    
+    int rev = bitShiftReverse(a.dword);
+    printf("Reverse byte order: %2x\n\n", rev);
     return 0;
 }
