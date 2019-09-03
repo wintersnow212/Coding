@@ -83,7 +83,7 @@ int hash(int function, int key)
    in order to place the first input key 
  * n: maximum number of times function can be recursively 
    called before stopping and declaring presence of cycle */
-void place(int key, int tableID, int cnt, int n) 
+void insert(int key, int tableID, int cnt, int n) 
 { 
     /* if function has been recursively called max number 
        of times, stop and declare cycle. Rehash. */
@@ -97,7 +97,7 @@ void place(int key, int tableID, int cnt, int n)
     /* calculate and store possible positions for the key. 
      * check if key already present at any of the positions. 
       If YES, return. */
-    for (int i=0; i<ver; i++) 
+    for (int i= 0; i<ver; i++) 
     { 
         pos[i] = hash(i+1, key); 
         if (hashtable[i][pos[i]] == key) 
@@ -113,7 +113,8 @@ void place(int key, int tableID, int cnt, int n)
     { 
         int dis = hashtable[tableID][pos[tableID]]; 
         hashtable[tableID][pos[tableID]] = key; 
-        place(dis, (tableID+1)%ver, cnt+1, n); 
+        // 把它挤出去了 换一个table继续insert
+        insert(dis, (tableID+1)%ver, cnt+1, n); 
     } 
     else //else: place the new key in its position 
        hashtable[tableID][pos[tableID]] = key; 
@@ -144,8 +145,8 @@ void cuckoo(int keys[], int n)
     // start with placing every key at its position in 
     // the first hash table according to first hash 
     // function 
-    for (int i=0, cnt=0; i<n; i++, cnt=0) 
-        place(keys[i], 0, cnt, n); 
+    for (int i= 0, cnt = 0; i < n; i++, cnt=0) 
+        insert(keys[i], 0, cnt, n); 
   
     //print the final hash tables 
     printTable(); 
