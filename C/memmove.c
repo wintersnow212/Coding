@@ -44,7 +44,17 @@
 00044  * C standard function - copy a block of memory, handling overlapping
 00045  * regions correctly.
 00046  */
-00047 
+00047 // 其实只有一种情况需要copy from back to front 也就是dest的start address > src的start!!!
+      If the destination is above the source, we have to copy
+00061          * back to front to avoid overwriting the data we want to
+00062          * copy.
+00063          *
+00064          *      dest:       dddddddd
+00065          *      src:    ssssssss   ^
+00066          *              |   ^  |___|
+00067          *              |___|
+00068          *
+
 00048 void *
 00049 memmove(void *dst, const void *src, size_t len)
 00050 {
@@ -74,7 +84,7 @@
 00074          *              |___|  ^   |
 00075          *                     |___|
 00076          */
-00077 
+00077         // 比较地址的值  
 00078         if ((uintptr_t)dst < (uintptr_t)src) {
 00079                 /*
 00080                  * As author/maintainer of libc, take advantage of the
@@ -105,6 +115,7 @@
 00105                 }
 00106         }
 00107         else {
+              // copy from back to front
 00108                 char *d = dst;
 00109                 const char *s = src;
 00110 
