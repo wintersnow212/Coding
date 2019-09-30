@@ -134,7 +134,7 @@ struct Foo {
     int num_;
 };
  
-void print_num(int i)
+void print_num(uint32_t i)
 {
     std::cout << i << '\n';
 }
@@ -145,6 +145,7 @@ struct PrintNum {
         std::cout << i << '\n';
     }
 };
+
 int main()
 {
     Array_Of_Function_Pointers();
@@ -156,14 +157,18 @@ int main()
     // Difference between function pointer and lamdba ---- performance wise
     //http://www.modernescpp.com/index.php/functional-in-c-dispatch-table
 
-    // dispatch table
-    std::unordered_map< const char , std::function<double(double,double)> > dispTable{
+    //dispatch table
+    std::unordered_map<char, std::function<double(double,double)> > dispTable{
     {'+',[](double a, double b){ return a + b;} },
     {'-',[](double a, double b){ return a - b;} },
     {'*',[](double a, double b){ return a * b;} },
     {'/',[](double a, double b){ return a / b;} } };
 
-
+    // 这里就体现了call back的注册 就算你的function是带argument的 在注册的时候也不需要
+    // 只有在使用callback的时候才需要
+    register_callback(print_num);
+    callbacks_[0](1000);
+        
     // store a free function
     std::function<void(int)> f_display = print_num;
     f_display(-9);
@@ -177,3 +182,16 @@ int main()
     f_display_31337();
     return 0;
 }
+/* 
+Your previous Python 2 content is preserved below:
+
+# This is a sandbox to experiment with CoderPad's execution capabilities.
+# It's a temporary, throw-away session only visible to you.
+
+def say_hello():
+    print 'Hello, World'
+
+for i in xrange(5):
+    say_hello()
+
+ */

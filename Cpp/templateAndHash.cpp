@@ -1,3 +1,5 @@
+
+// https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -18,7 +20,7 @@ public:
         // auto h2 = std::hash<T2>{}(p.second);
         // 感觉()是构建了一个hash object!!!
         auto h1 = std::hash<T1>()(p.first);
-        auto h2 = std::hash<T2>{}(p.second);
+        auto h2 = std::hash<T2>()(p.second);
 
         // Mainly for demonstration purposes, i.e. works but is overly simple
         // In the real world, use sth. like boost.hash_combine
