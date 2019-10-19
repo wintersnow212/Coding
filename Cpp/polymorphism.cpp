@@ -31,9 +31,9 @@ public:
     如果有自己的构造函数 这个时候就没有compiler-defined的default constructor了 
     就要自己写默认构造函数了, 不写如果你
     */
-    Base():
-        parentPublic(5),
-        parentSharedVal(4)       
+    Base()
+        : parentPublic(5)
+        , parentProtectedVal(4)       
     { 
         /*
         This constructor yields the same end result as the one above, but it
@@ -54,6 +54,11 @@ public:
         cout << "Base::Base()\n"; 
     }
     
+    Base(int x)
+        : parentProtectedVal(x)
+    {
+        
+    }
    
     Base(const Base& b)
     {
@@ -106,16 +111,19 @@ public:
 protected:
     void parentShared()
     {
-        cout << "Base::parentShared\n"; 
+        cout << "Base::parentShared " << parentProtectedVal << endl; 
     }
     
-    int parentSharedVal;
+    int parentProtectedVal;
 };
 
 class Derived1 : public Base
 {
 public:
     Derived1()
+        // If derived call do nothing the default base class constructor will be called
+        // If you want to do something you can call base class constructor
+        : Base(6)
     { 
         cout << "Derived1::Derived1()\n"; 
     }
@@ -135,7 +143,6 @@ public:
     {
         cout << "-----------Parent Shared---------------------start\n"; 
         parentShared();
-        cout << parentSharedVal << endl;
         cout << "-----------Parent Shared---------------------end\n"; 
         cout << endl;  
     }
