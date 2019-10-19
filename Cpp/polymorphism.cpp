@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class Foo
@@ -99,6 +100,15 @@ public:
         cout << "Base speak" << endl;
     }
     
+    
+    void childOveride()
+    {
+        cout << "-----------Child Override Parent---------------------start\n"; 
+        cout << "Base::parentShared " << parentProtectedVal << endl; 
+        cout << "-----------Child Override Parent---------------------end\n"; 
+        cout << endl;  
+    }
+    
     /*
         派生类一定要定义函数体
         但是这样做以后抽象类就不能被实例化
@@ -109,11 +119,7 @@ public:
     
     int parentPublic;
 protected:
-    void parentShared()
-    {
-        cout << "Base::parentShared " << parentProtectedVal << endl; 
-    }
-    
+
     int parentProtectedVal;
 };
 
@@ -139,13 +145,13 @@ public:
         static_cast<Base*>(this)->f();
     }
     
-    void childOwn()
-    {
-        cout << "-----------Parent Shared---------------------start\n"; 
-        parentShared();
-        cout << "-----------Parent Shared---------------------end\n"; 
-        cout << endl;  
-    }
+    // void childOwn()
+    // {
+    //     cout << "-----------Parent Shared---------------------start\n"; 
+    //     parentShared();
+    //     cout << "-----------Parent Shared---------------------end\n"; 
+    //     cout << endl;  
+    // }
 
     void callBaseCopyConstructor()
     {
@@ -187,6 +193,7 @@ class Derived2 : public Base
 {
 public:
     Derived2()
+        : Base(8)
     { 
         cout << "Derived2::Derived2()\n"; 
     }
@@ -265,11 +272,7 @@ int main()
     cout << "-------Not Polymorphism base object ---start" << endl;
     bObj.speak(2);
     cout << "-------Not Polymorphism base object ---end" << endl;
-    //Derived2* d2 = new Derived2();
-    // Child 可以调用base's function 但是不是other way around
-    //b->childOwn();
     cout << endl;
-    d1.childOwn();
     //d1.callBaseCopyConstructor();
     
     b->f(); 
@@ -285,7 +288,18 @@ int main()
     cout << "----------Pass the class object by value---------end" << endl;
     
     Derived2 d2;
-   
+    
+    cout << endl;
+    // 这里有点像factory 或者observer pattern
+    vector<Base*> baseList;
+    baseList.push_back(&d1);
+    baseList.push_back(&d2);
+    for (auto b : baseList)
+    {
+        // Child 可以调用base's function 但是不是other way around
+        b->childOveride();
+    }
+    
     b = &d2;
     b->f();
     // 这里有问题的原因是因为d2不是malloc的！！！
@@ -308,5 +322,6 @@ int main()
     cout << endl;
     //DoBar (42);
    
+    
     return 0;
 }
