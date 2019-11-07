@@ -94,7 +94,33 @@ struct complx
         
         return this->real > other.real;
     }
+    
+    // 感觉operator 的override 有两种方式
+    // 一种是override在 class definition 里面
+    // 另外一种是在外面
+    /*
+    For all operators where you have to choose to either implement them as 
+    a member function or a non-member function, use the following rules of thumb to decide:
+
+    If it is a unary operator, implement it as a member function.
+    If a binary operator treats both operands equally (it leaves them unchanged), 
+    implement this operator as a non-member function.
+    If a binary operator does not treat both of its operands equally (usually it will change its left operand), 
+    it might be useful to make it a member function of its left operand’s type, 
+    if it has to access the operand's private parts.
+*/
+    
+    bool operator== (const complx& other)
+    {
+        return this->real == other.real && this->imag == other.imag;
+    }
 };
+
+bool operator== (const complx& a, const complx& b)
+{
+    return a.real == b.real && a.imag == b.imag;
+}
+
 
 // 这里不用的原因是因为struct default是public
 std::ostream& operator<<(std::ostream& stream, const complx& other)
@@ -103,6 +129,9 @@ std::ostream& operator<<(std::ostream& stream, const complx& other)
     
     return stream;
 }
+
+
+
 
 
 class Cents
@@ -181,6 +210,14 @@ int main()
         cout << "wrong" << endl;
     }
     
+    if (x == y)
+    {
+        cout << "equal" << endl;
+    }
+    else
+    {
+        cout << "not equal" << endl;
+    }
     
     Cents n(5);
     Cents d(10);
@@ -192,5 +229,4 @@ int main()
     {
         cout << "smaller" << endl;
     }
-
 }    

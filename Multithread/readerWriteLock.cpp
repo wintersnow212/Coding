@@ -1,3 +1,8 @@
+// 1. 一个 int status variable 表示有多少正在read 或者正在write的user; 0 表示没人读也没人写
+// 2. 两个variable 一个表示等待读的user 另外一个表示等待写的user
+// 3. 两个condition variable 一个是read的 一个是write的
+// 4. 两个condition variable都是建立在一个mutex上
+
 #include <iostream>
 #include <shared_mutex>
 using namespace std;
@@ -92,10 +97,13 @@ private:
     // -1    : one writer
     // 0     : no reader and no writer
     // n > 0 : n reader
+    // 这里status 特别重要！！！ 就是表明都多少正在使用中的readers和writers
     int32_t _status;
+    // 这下面的两个variable 表示正在等待的waiter
     int32_t _waiting_readers;
     int32_t _waiting_writers;
     std::mutex _mtx;
+    // 两个conditional variable
     std::condition_variable _read_cv;
     std::condition_variable _write_cv;
 };

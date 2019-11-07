@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class Foo
@@ -31,9 +32,9 @@ public:
     如果有自己的构造函数 这个时候就没有compiler-defined的default constructor了 
     就要自己写默认构造函数了, 不写如果你
     */
-    Base():
-        parentPublic(5),
-        parentSharedVal(4)       
+    Base()
+        : parentPublic(5)
+        , parentProtectedVal(4)       
     { 
         /*
         This constructor yields the same end result as the one above, but it
@@ -54,6 +55,11 @@ public:
         cout << "Base::Base()\n"; 
     }
     
+    Base(int x)
+        : parentProtectedVal(x)
+    {
+        
+    }
    
     Base(const Base& b)
     {
@@ -74,24 +80,33 @@ public:
     void f()
     { 
         cout << "Base::f()\n";
-        cout << "----------Base call pointer refers to derived will call child's virtual------------" << endl;
+        cout << endl; 
+        cout << "--------Base call derived virtual function------start" << endl;
         // 这个v() 是会call children 因为
         // 1. 这个指针是 Base* b = static_cast<Base*>(&d1);
         // 2. v是virtual function 被inherit了
         v();
-        cout << "----------Base call pointer refers to derived will call child's virtual------------" << endl;
+        cout << "-------Base call derived virtual function-------end" << endl;
+        cout << endl; 
     }
     
     virtual void v()
     { 
-        cout << "----------Base class object will call base‘s virtual------------" << endl;
         cout << "Base::v()\n";
-        cout << "----------Base class object will call base‘s virtual------------" << endl;
     }
     
     virtual void speak(int i) 
     {
         cout << "Base speak" << endl;
+    }
+    
+    
+    void childOveride()
+    {
+        cout << "-----------Child Override Parent---------------------start\n"; 
+        cout << "Base::parentShared " << parentProtectedVal << endl; 
+        cout << "-----------Child Override Parent---------------------end\n"; 
+        cout << endl;  
     }
     
     /*
@@ -104,18 +119,17 @@ public:
     
     int parentPublic;
 protected:
-    void parentShared()
-    {
-        cout << "Base::parentShared\n"; 
-    }
-    
-    int parentSharedVal;
+
+    int parentProtectedVal;
 };
 
 class Derived1 : public Base
 {
 public:
     Derived1()
+        // If derived call do nothing the default base class constructor will be called
+        // If you want to do something you can call base class constructor
+        : Base(6)
     { 
         cout << "Derived1::Derived1()\n"; 
     }
@@ -131,18 +145,19 @@ public:
         static_cast<Base*>(this)->f();
     }
     
-    void childOwn()
-    {
-        parentShared();
-        cout << parentSharedVal << endl;
-        cout << "Derived1::childOwn\n"; 
-    }
+    // void childOwn()
+    // {
+    //     cout << "-----------Parent Shared---------------------start\n"; 
+    //     parentShared();
+    //     cout << "-----------Parent Shared---------------------end\n"; 
+    //     cout << endl;  
+    // }
 
     void callBaseCopyConstructor()
     {
-        cout << "Call Base Copy Constructor\n";  
+        cout << "----------Call Base Copy Constructor---------start\n";  
         Base(*this);
-        cout << "Call Base Copy Constructor\n";  
+        cout << "----------Call Base Copy Constructor---------end\n";  
     }
     virtual void v()
     { 
@@ -164,12 +179,13 @@ public:
     */
     virtual void speak(int i) override
     {
-        cout << "----------Call the parent class from child------------" << endl;
         cout << "Derived1 Speak" << endl;
-        // 这样是死循环不停的call 自己
-        //speak(i);
-        Base::speak(i);
-        cout << "----------Call the parent class from child------------" << endl;
+        // // 这样是死循环不停的call 自己
+        // //speak(i);
+        // cout << "------Call the parent class from child--------start" << endl;
+        // Base::speak(i);
+        // cout << "------Call the parent class from child---------end" << endl;
+        // cout << endl;  
     }
 };
 
@@ -177,6 +193,7 @@ class Derived2 : public Base
 {
 public:
     Derived2()
+        : Base(8)
     { 
         cout << "Derived2::Derived2()\n"; 
     }
@@ -199,6 +216,7 @@ public:
     virtual void speak(int i) override
     {
         cout << "Derived2 Speak" << endl;
+        cout << endl;  
     }
 };
 
@@ -215,10 +233,6 @@ void test(Base base)
 
 int main()
 {
-    /*
-    1. 首先你是一个base的指针!!! poly一定是用指针实现的！！！
-    2. 然后指向derived class
-    */
     //Base* b = new Derived1();
     Derived1 d1;
     // 其实accesss specifier 是表示access scope 
@@ -237,29 +251,55 @@ int main()
         
         You could cast from a point reference (or pointer) to a subpoint reference (or pointer), if the referred object were 
         actually of type subpoint: 
-        dynamic_cast will only work if point is polymorphic (that is, if it has a virtual function).
+        dynamic_cast will only work if pointer is polymorphic (that is, if it has a virtual function).
         Static_cast downcast don’t have this requirement
         这也是dynamic cast好的地方 有检测 exclusively used for handling polymorphism.
     */ 
-    Base* b = static_cast<Base*>(&d1);
-    b->speak(2);
     
-    //Derived2* d2 = new Derived2();
-    // Child 可以调用base's function 但是不是other way around
-    //b->childOwn();
-    d1.childOwn();
-    d1.callBaseCopyConstructor();
-    b->f();
-    b->v();
+    /* Polymorphism 不一定是要指针 也可以是reference
+    1. Poly不一定是base pointer 可以是reference!!
+    2. 然后指向derived class
+    */
+    Base* b = static_cast<Base*>(&d1);
+    Base& bRef = d1;
+    Base  bObj = d1;
+    cout << endl;
+    cout << "-------Polymorphism dervied class pointer or ref---start" << endl;
+    b->speak(2);
+    bRef.speak(2);
+    cout << "-------Polymorphism dervied class pointer or ref---end" << endl;
+    cout << endl;
+    cout << "-------Not Polymorphism base object ---start" << endl;
+    bObj.speak(2);
+    cout << "-------Not Polymorphism base object ---end" << endl;
+    cout << endl;
+    //d1.callBaseCopyConstructor();
+    
+    b->f(); 
+
+    cout << "-------Base pointer will call base‘s virtual-----start" << endl;
     Base* baseObj = new Base();
     baseObj->v();
+    cout << "-------Base pointer will call base‘s virtual-----end" << endl;
+    cout << endl; 
     
-    cout << "----------Pass the class object by value------------" << endl;
+    cout << "----------Pass the class object by value---------start" << endl;
     test(*b);
-    cout << "----------Pass the class object by value------------" << endl;
+    cout << "----------Pass the class object by value---------end" << endl;
     
     Derived2 d2;
-   
+    
+    cout << endl;
+    // 这里有点像factory 或者observer pattern
+    vector<Base*> baseList;
+    baseList.push_back(&d1);
+    baseList.push_back(&d2);
+    for (auto b : baseList)
+    {
+        // Child 可以调用base's function 但是不是other way around
+        b->childOveride();
+    }
+    
     b = &d2;
     b->f();
     // 这里有问题的原因是因为d2不是malloc的！！！
@@ -270,7 +310,7 @@ int main()
     // 这样是不会call assignment operator的 
     // 因为只是指针的改变啊 并不是object的创建
 
-    cout << "----------Assignment Op------------" << endl;
+    cout << "----------Copy Assignment Operator-----------start" << endl;
     Base* b2 = new Base();
     b = b2;
     
@@ -278,10 +318,10 @@ int main()
     //Base::Assignment operator
     *b2 = b3;
     delete b2;
-    cout << "----------Assignment Op-----------" << endl;
-    
-    cout << "----------explicit constructor------------" << endl;
+    cout << "----------Copy Assignment Operator-----------end" << endl;
+    cout << endl;
     //DoBar (42);
    
+    
     return 0;
 }
