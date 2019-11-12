@@ -7,6 +7,29 @@
 #include <list>
 using namespace std;
 
+
+// 函数模板
+template<typename T>
+bool equivalent(const T& a, const T& b){
+    return !(a < b) && !(b < a);
+}
+// 类模板
+template<typename T=int> // 默认参数
+class bignumber
+{
+public:
+    bignumber(T a) : _v(a) { }
+    inline bool operator<(const bignumber& b) const; // 等价于 (const bignumber<T>& b)
+private:
+    T _v;
+};
+
+// 在类模板外实现成员函数
+template<typename T>
+bool bignumber<T>::operator<(const bignumber& b) const{
+    return _v < b._v;
+}
+
 // Template hash
 template <typename T1, typename T2>
 class pair_hash 
