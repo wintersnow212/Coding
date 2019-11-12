@@ -40,6 +40,8 @@ class TMP<const T1, T2, i, CP>;
 /****************************************************************
  * template meta programming TMP的例子
  * http://www.cs.rpi.edu/~musser/design/blitz/meta-art.html
+ * 好处： The use of templates can be thought of as compile-time execution
+ *  so it is easier to be optimized by the compiler
  ****************************************************************/
 // non-typed template   
 template <unsigned int n>
