@@ -7,6 +7,29 @@
 #include <list>
 using namespace std;
 
+
+// 函数模板
+template<typename T>
+bool equivalent(const T& a, const T& b){
+    return !(a < b) && !(b < a);
+}
+// 类模板
+template<typename T=int> // 默认参数
+class bignumber
+{
+public:
+    bignumber(T a) : _v(a) { }
+    inline bool operator<(const bignumber& b) const; // 等价于 (const bignumber<T>& b)
+private:
+    T _v;
+};
+
+// 在类模板外实现成员函数
+template<typename T>
+bool bignumber<T>::operator<(const bignumber& b) const{
+    return _v < b._v;
+}
+
 // Template hash
 template <typename T1, typename T2>
 class pair_hash 
@@ -84,6 +107,41 @@ bool test(const T1& x, const T2& y)
 }
 
 
+/*****************************
+Template non-type parameters
+A template non-type parameter is a special type of parameter that does not substitute for a type, 
+but is instead replaced by a value. A non-type parameter can be any of the following:
+
+A value that has an integral type or enumeration
+A pointer or reference to a class object
+A pointer or reference to a function
+A pointer or reference to a class member function
+std::nullptr_t
+******************************/
+template <class T, int size> // size is the non-type parameter
+class StaticArray
+{
+private:
+    // The non-type parameter controls the size of the array
+    T m_array[size];
+ 
+public:
+    T* getArray();
+	
+    T& operator[](int index)
+    {
+        return m_array[index];
+    }
+};
+ 
+// Showing how a function for a class with a non-type parameter is defined outside of the class
+template <class T, int size>
+T* StaticArray<T, size>::getArray()
+{
+    return m_array;
+}
+
+
 // To execute C++, please define "int main()"
 int main() {
   
@@ -109,7 +167,27 @@ int main() {
     // Using a function template is extremely straightforward -- you can use it just like any other function
     cout << test(3, 4) << endl;
     cout << test(3, 4.3) << endl;
-
+    
+     // declare an integer array with room for 12 integers
+    StaticArray<int, 12> intArray;
+ 
+    // Fill it up in order, then print it backwards
+    for (int count=0; count < 12; ++count)
+        intArray[count] = count;
+ 
+    for (int count=11; count >= 0; --count)
+        std::cout << intArray[count] << " ";
+    std::cout << '\n';
+ 
+    // declare a double buffer with room for 4 doubles
+    StaticArray<double, 4> doubleArray;
+ 
+    for (int count=0; count < 4; ++count)
+        doubleArray[count] = 4.4 + 0.1*count;
+ 
+    for (int count=0; count < 4; ++count)
+        std::cout << doubleArray[count] << ' ';
+ 
     return 0;
 }
 
