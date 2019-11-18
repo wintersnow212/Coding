@@ -60,6 +60,18 @@ private:
     //  优化写法
     //typedef list<Node<T>> ListType;
     typedef list<pair<T, T>> ListType;
+    /*
+    在模板中，如何声明嵌套从属类型(即模板嵌套类型)？
+    根据C++的规则，编译器先假设C::iterator不是一个类型。然而iter的声明只有在C::iterator是一个类型时才合理。因此需要我们自己告诉编译器。
+    那么，就需要再C::iterator之前加上typename，告诉编译器C::iterator是一个类型。
+    template<typename C>
+    void doSomething(const C& container)
+    {
+        if(container.size() > 0)
+            typename C::iterator iter(container.begin());
+    }
+    
+    */
     typedef typename ListType::iterator IterType;
     ListType m_list;
     unordered_map<T, IterType> map;
