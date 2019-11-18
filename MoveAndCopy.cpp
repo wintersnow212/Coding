@@ -3,13 +3,16 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-
+#include <cstring>
 using namespace std;
 
+
+/****************************************************************************************
 //https://docs.microsoft.com/en-us/cpp/cpp/move-constructors-and-move-assignment-operators-cpp?view=vs-2019
 //https://www.learncpp.com/cpp-tutorial/15-3-move-constructors-and-move-assignment/
 // 可能需要disable copy constructor
 // copy&&move construct 不用free 但是感觉copy assignment 和move assignment需要
+****************************************************************************************/
 
 class MemoryBlock
 {
@@ -54,6 +57,7 @@ public:
 
       std::copy(other._data, other._data + _length, _data);
    }
+    
 
    // Copy assignment operator.
    MemoryBlock& operator=(const MemoryBlock& other)
@@ -147,8 +151,10 @@ private:
    int* _data; // The resource.
 };
 
-// Another example from learn c++ 
-// https://www.learncpp.com/cpp-tutorial/15-3-move-constructors-and-move-assignment/
+/****************************************************************************************
+ Another example from learn c++ 
+ https://www.learncpp.com/cpp-tutorial/15-3-move-constructors-and-move-assignment
+****************************************************************************************/
 template<class T>
 class Auto_ptr4
 {
@@ -170,16 +176,8 @@ public:
     {
         std::cout << "Copy constructor" << std::endl;
         m_ptr = new T;
-        *m_ptr = *a.m_ptr;
-    }
- 
-    // Move constructor
-    // Transfer ownership of a.m_ptr to m_ptr
-    Auto_ptr4(Auto_ptr4&& a)
-        : m_ptr(a.m_ptr)
-    {
-        std::cout << "move constructor" << std::endl;
-        a.m_ptr = nullptr; // we'll talk more about this line below
+        memcpy(m_ptr, a.m_ptr, sizeof(Auto_ptr4));
+        //*m_ptr = *a.m_ptr;
     }
  
     // Copy assignment
@@ -200,6 +198,15 @@ public:
         memcpy(m_ptr, a.m_ptr, sizeof(Auto_ptr4));
  
         return *this;
+    }
+    
+    // Move constructor
+    // Transfer ownership of a.m_ptr to m_ptr
+    Auto_ptr4(Auto_ptr4&& a)
+        : m_ptr(a.m_ptr)
+    {
+        std::cout << "move constructor" << std::endl;
+        a.m_ptr = nullptr; // we'll talk more about this line below
     }
  
     // Move assignment
@@ -239,21 +246,51 @@ Auto_ptr4<Resource> generateResource()
     return res; // this return value will invoke the move constructor
 }
 
-
+/****************************************************************************************
+ Perfect forwarding
+ 
+ "perfect forwarding", avoids excessive copying, 
+ and avoids the template author having to write multiple overloads for lvalue and rvalue references
+ 
+****************************************************************************************/
+class Test {
+    int * arr{nullptr};
+public:
+    Test():arr(new int[5000]{1,2,3,4}) { 
+        cout << "default constructor" << endl;
+    }
+    Test(const Test & t) {
+        cout << "copy constructor" << endl;
+        if (arr == nullptr) arr = new int[5000];
+        memcpy(arr, t.arr, 5000*sizeof(int));
+    }
+    Test(Test && t): arr(t.arr) {
+        cout << "move constructor" << endl;
+        t.arr = nullptr;
+    }
+    ~Test(){
+        cout << "destructor" << endl;
+        delete [] arr;
+    }
+};
 template <typename T>
 void func(T t) {
     cout << "in func" << endl;
 }
 
+// Here is universal reference
 template <typename T>
 void relay(T&& t) {
     cout << "in relay" << endl;
+    cout << "-----------not using the forward-----------" << endl;
     func(t);
+    cout << "---------- using the forward-----------" << endl;
     // perfect forward
     // 这时，我们需要std::forward<T>()。与std::move()相区别的是，
     // move()会无条件的将一个参数转换成右值，而forward()则会保留参数的左右值类型
     func(std::forward<T>(t));
 }
+
 Test createTest() {
     return Test();
 }
@@ -263,8 +300,8 @@ int main()
 {
     // Test perfect forwarding!!!
     relay(Test());
-   
-  
+    cout << "--------------------End of test Perfect forwarding-------------" << endl;
+    
     std::string str = "Hello";
     std::vector<std::string> vec;
  
