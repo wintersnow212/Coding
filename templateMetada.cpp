@@ -111,8 +111,8 @@ void foo<std::string>(const std::string& x)
 }
 //That’s it; you’re done. The compiler will automagically select the correct specialization when it sees which T you are using.
 
-
-template<typename T, int i> class cp00; // 用于模板型模板参数
+// 这个是模板型模板参数； 这里一定要用class 而不是template
+template<typename T, int i> class cp00; 
 
 // 通例
 template<typename T1, typename T2, int i, template<typename, int> class CP>
