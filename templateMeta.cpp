@@ -89,6 +89,13 @@ bool _is_pointer(const T&)
     return is_pointer_type<T>::value;
 }
 
+//这里不能用typename 很简单因为typename只适用于type啊 从字面意思！！！！
+template<int T>
+struct isEvenNumber
+{
+    static constexpr bool value = (T&1) ? false : true;
+};
+
 
 /****************************************************************
  SFINAE and enable_if
@@ -163,4 +170,13 @@ int main()
     
     
     std::cout << factorial<4>::value << std::endl;
+    
+     if (isEvenNumber<16>::value == true)
+    {
+        cout << "Even number" << endl;
+    }
+    else
+    {
+        cout << "Odd number" << endl;
+    }
 }
