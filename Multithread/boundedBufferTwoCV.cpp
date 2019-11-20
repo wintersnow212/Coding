@@ -81,8 +81,9 @@ struct BoundedBuffer {
         {
             not_full.wait(l);
         }
-        //not_full.wait(l, [this](){return count != capacity; });
-
+        // capture list 里面的this还不能少 不然count不知道哪来
+        //not_full.wait(l, [this](){return count != capacity;});
+       
         buffer[rear] = data;
         rear = (rear + 1) % capacity;
         ++count;
