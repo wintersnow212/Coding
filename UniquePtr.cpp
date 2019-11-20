@@ -24,6 +24,13 @@ public:
         
     }
     
+   // Move constructor 
+    UniquePtr(T&& other)
+        : m_ptr(other.m_ptr)
+    {
+        other.m_ptr = nullptr;
+    }
+    
     ~UniquePtr()
     {
         delete m_ptr;
