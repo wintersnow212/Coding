@@ -2,12 +2,12 @@
 #include <string>
 #include <memory>
 using namespace std;
-/*
+/*********************************************************************
 要很好的理解smart pointer的意义:
 Give the ownership of heap allocated memory to stack varible,so that when it is out of scope, it will be freed autonmatically
 所以pass in 一个new的object pointer 用自己的member pointer 指向同一块memory
 到时候out of scope的时候就可以free掉它
-*/
+**************************************************************************/
 
 class RefCnt
 {
@@ -154,6 +154,11 @@ private:
 };
 
 
+/*********************************************************************
+Simple implementation: 不用使用refCnt struct 而是使用int* m_refCnt就可以了
+特别注意这里是int* 不能是int!!!!!!
+因为object 会在class 释放的时候自动被释放！！！！
+**************************************************************************/
 template<typename T>
 class SharedPtrSp
 {
@@ -188,7 +193,7 @@ public:
         }
     }
     
-    // Copy constructor
+    // Copy constructor 我们这里就是希望shadow copy!!!!
     SharedPtrSp (const SharedPtrSp& other)
     {
         m_ptr = other.m_ptr;
@@ -197,11 +202,22 @@ public:
         //*m_refCnt = *(other.m_refCnt);
         // 这个是正确的！！！！
         // 因为我们想改变other里面m_refCnt的值
-        m_refCnt = (other.m_refCnt);
+        m_refCnt = other.m_refCnt;
         (*m_refCnt)++;
         cout << "Let me See! " << *(other.m_refCnt) << endl;
         cout << "Copy constructor called! Ref count is " << *m_refCnt << endl;
     }
+    
+//     // Copy constructor 简便写法!!! 
+//     SharedPtrSp (const SharedPtrSp& other)
+//         : m_ptr(other.m_ptr)
+//         , m_refCnt(other.m_refCnt)
+//     {
+        
+//         (*m_refCnt)++;
+//         cout << "Let me See! " << *(other.m_refCnt) << endl;
+//         cout << "Copy constructor called! Ref count is " << *m_refCnt << endl;
+//     }
     
     // 这里template的return是SharedPtr<T>
     // Copy assignment operator
@@ -236,6 +252,34 @@ public:
         return *this;
     }
     
+    // Move constructor
+    SharedPtrSp (SharedPtrSp&& other)
+        : m_ptr(other.m_ptr)
+        , m_refCnt(other.m_refCnt)
+    {
+        other.m_ptr = nullptr;
+        other.m_refCnt = nullptr;
+    }
+    
+    // Move assignment
+    SharedPtrSp<T> operator= (SharedPtrSp&& other)
+    {
+        if (this == &other)
+        {
+            return *this;
+        }
+        
+        delete m_ptr;
+        delete m_refCnt;
+        
+        m_ptr = other.m_ptr;
+        m_refCnt = other.m_refCnt;
+        
+        other.m_ptr    = nullptr;
+        other.m_refCnt = nullptr;
+        
+        return *this;
+    }
     // overload operator ->
     T* operator-> ()
     {
@@ -246,8 +290,6 @@ public:
     {
         return *m_ptr;
     }
-    
-    
 private:
     T*  m_ptr;
     int* m_refCnt;
@@ -357,6 +399,7 @@ void testFull()
     // 这里这样是不会call copy constructor 或者copy assignment
     SharedPtr<AirCraft> uP = new AirCraft("F-22 Tiger");
 }
+
 int main()
 {
     testSimple();
@@ -364,4 +407,5 @@ int main()
     testFull();
     return 0;
 }
+
 
