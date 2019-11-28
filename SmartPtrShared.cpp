@@ -169,7 +169,8 @@ public:
     {
         
     }
-    
+    // Smart pointer的背后意义就是把heap allocated object的ownership
+    // 传给stack object 所以constructor的时候经常是pass in pointer
     SharedPtrSp(T* ptr) 
         : m_ptr(ptr)
         , m_refCnt(new int(1))
@@ -185,6 +186,7 @@ public:
             cout << "Destroyed smart_ptr! Ref count is " << *m_refCnt << endl;
             if ((*m_refCnt) == 0)
             {
+                // m_ptr的delete之后发生在m_refCnt == 0的时候！！！
                 delete m_ptr;
                 m_ptr = nullptr;
                 delete m_refCnt;
@@ -242,13 +244,15 @@ public:
                 m_refCnt = nullptr;
             }
         }
-            
+        
+        // 这一步和copy constructor 是一样的！！！！！
         m_ptr = other.m_ptr;
         m_refCnt = other.m_refCnt;
         (*m_refCnt)++;
         
         cout << "Copy assignment called! Ref count is "
              << *m_refCnt << endl;
+        
         return *this;
     }
     
@@ -262,7 +266,7 @@ public:
     }
     
     // Move assignment
-    SharedPtrSp<T> operator= (SharedPtrSp&& other)
+    SharedPtrSp<T>& operator= (SharedPtrSp&& other)
     {
         if (this == &other)
         {
@@ -280,6 +284,7 @@ public:
         
         return *this;
     }
+    
     // overload operator ->
     T* operator-> ()
     {
@@ -402,8 +407,10 @@ void testFull()
 
 int main()
 {
+    cout << "-------------Simple Smart Pointer--------------" << endl;
     testSimple();
-    cout << "--------------------------------------" << endl;
+    cout << endl;
+    cout << "-------------Full Smart Pointer--------------" << endl;
     testFull();
     return 0;
 }
