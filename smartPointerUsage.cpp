@@ -127,28 +127,22 @@ This is in no way specific to std::unique_ptr, but applies to any class that is 
 1.The compiler tries to elide copies, invokes a move constructor if it can't remove copies, 
 2.calls a copy constructor if it can't move, 
 3.and fails to compile if it can't copy.
-
 Because return of certain expressions, 
 such as local automatic variables, are explicitly defined to return a moved object, 
 if the moving operator is available.
 So:
-
 return p;
 is more or less similar to:
-
 return std::move(p);
-
 But note that this will not work for example with a global variable.
-
 std::unique_ptr<int> g(new int(3));
 std::unique_ptr<int> ptr() {
     return g;  //  error!!!
 }
 */
-unique_ptr<int> returnSmartPointer()
+unique_ptr<A> myFun()
 {
-    std::unique_ptr<int> p(new int(3));
-    return p;
+    return make_unique<A>("Unique");
 }
 
 /* return by address 就要小心
@@ -166,6 +160,21 @@ int main()
 {
     uniqueTest1();
     uniqueTest2();
+    // MyFunc return the loacl variable is ok,
+    // 同时由于优化return会调用move而不是copy 这样unique_ptr就没有问题
+    // 但是问题是return的这个temporary object
+    // That temporary will have its life extended beyond the   
+    // definition and you can use it as if you had caught it by value
+    // 但是问题在于line173之后就会被tempo object就会被destory, unique ptr
+    // 的destructor会被invoke就会被invalidate
+    // rA is unusable, initialized with invalid Could a reference  
+    //(invalidated by destruction of temporary unique_ptr returned 
+    // from myFun
+    //const A& rA = *myFun();
+    
+    // 解决方案
+    auto p = myFun();
+    const A& rA = *p;
     
     // Reference counting 
     // make shared --- allocate control block of memory for reference count
@@ -175,6 +184,7 @@ int main()
     // allocate a Resource object and have it owned by std::shared_ptr
 
     shared_ptr<A> YZ = make_shared<A>("YZ");
+    cout << YZ->GetVal() << endl;
     {
         // use copy initialization to make another std::shared_ptr pointing to the same thing
         std::shared_ptr<A> ptr2(YZ); 
@@ -196,3 +206,18 @@ int main()
     weakPtrTest();
     return 0;
 }
+
+
+/* 
+Your previous Python 2 content is preserved below:
+
+# This is a sandbox to experiment with CoderPad's execution capabilities.
+# It's a temporary, throw-away session only visible to you.
+
+def say_hello():
+    print 'Hello, World'
+
+for i in xrange(5):
+    say_hello()
+
+ */
