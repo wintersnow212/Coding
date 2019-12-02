@@ -6,6 +6,11 @@ using namespace std;
 class A
 {
 public:
+    A ()
+    {
+        cout << "Empty constructor called" << endl;
+    }
+    
     A (string name):m_val(name)
     {
         cout << "constructor called" << endl;
