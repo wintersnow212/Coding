@@ -27,8 +27,6 @@ Singleton* Singleton::getInstance() {
     return m_instance;
 }
 
-
-
 //双检查锁，但由于内存读写reorder不安全
 Singleton* Singleton::getInstance() {
     
@@ -60,8 +58,6 @@ Singleton* Singleton::getInstance() {
     return tmp;
 }
 
-
-
 //https://en.wikibooks.org/wiki/C%2B%2B_Programming/Code/Design_Patterns#Singleton
 class StringSingleton
  {
@@ -78,10 +74,24 @@ class StringSingleton
      static StringSingleton &Instance()
      {
          // This line only runs once, thus creating the only instance in existence
+         // 这个是static后就不会被 free了 life time
+         // static 对于global 这种本来已经是全局life time的改变的就是scope 
+         // --- static function, every file include have is own copy and must have its own implementation
+         // static inline
+         /*
+         inline does not mean you can use the function “inline” (it is normal to use functions inside other functions; you do not need  inline for that); it encourages the compiler to 
+         build the function into the code where it is used (generally with the goal of improving execution speed).
+         static inline is usually used with small functions that are better done in the calling routine than by using a call mechanism, s
+         imply because they are so short and fast that actually doing them is better than calling a separate copy
+          */
+         // 头文件中的 static 函数会在每个文件中生成一份代码，这造成代码冗余倒不是最大的问题，最大的问题是可能带来库文件与工程文件同一函数的代码的不一致性
+         // 对于 local 改变的是scope 
          static std::auto_ptr<StringSingleton> instance( new StringSingleton );
          // dereferencing the variable here, saves the caller from having to use 
          // the arrow operator, and removes temptation to try and delete the 
          // returned instance.
+
+         // 这个需要deference的原因是因为smart pointer就是当做pointer使用 然后你要return its object
          return *instance; // always returns the same instance
      }
  

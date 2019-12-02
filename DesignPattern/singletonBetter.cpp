@@ -14,9 +14,12 @@ using namespace std;
 • You want to prevent clients from being able to delete the singleton instance. This can be done by declaring the destructor to be private. (Note, however, that some compilers, such as Borland 5.5 and Visual Studio 6, produce an error incorrectly if you try to declare a destructor as private.)
 
 • The GetInstance() method could return either a pointer or a reference to the singleton class. However, if you return a pointer, clients could potentially delete the object. You should therefore prefer returning a reference.
-
-
 *************************************************************************/
+
+// https://blog.csdn.net/janeqi1987/article/details/76147312
+#include <iostream>
+#include <mutex>
+using namespace std;
 
 // https://blog.csdn.net/janeqi1987/article/details/76147312
 class Singleton
@@ -25,12 +28,14 @@ public:
     /// Return the single instance of this class
     static Singleton& GetInstance();
     
-    
-    static Singleton& GetInstanceDoubleLocking();
+    static Singleton& GetInstancePointerDoubleLocking();
 
     /// Return some class-specific single-instance state
     int GetState();
 
+    // 这个很关键啊 不要忘了 disable copy 和 copy assignment
+    Singleton (const Singleton& obj) = delete;
+    Singleton& operator= (const Singleton& obj) = delete;
 private:
     // Prevent construction and copying of this class
     Singleton()
@@ -45,36 +50,43 @@ private:
         m_instance = nullptr;
     }
     
-    Singleton(const Singleton &);
-    const Singleton &operator =(const Singleton &);
+    // 这个很关键啊 不要忘了 disable copy 和 copy assignment
+    // Singleton(const Singleton &);
+    // const Singleton &operator =(const Singleton &);
     
     static Singleton* m_instance;
+    
+    //必须要static啊 static member function 不能access class member
     static std::mutex m_mutex;
 };
 // type + class name + :: + class variable
 Singleton* Singleton::m_instance = nullptr;
 mutex Singleton::m_mutex;
 
-// clients could potentially delete the object. You should therefore 
-// prefer returning a reference.
+/*************************************************************************
+// 这个貌似更好一点？？ lazy init 同时return return reference not pointer
+   clients could potentially delete the object. You should therefore 
+   prefer returning a reference.
+   The lifetime of function static variables begins the first time[0] the program flow encounters the declaration and it ends at program termination. 
+   This means that the run-time must perform some book keeping in order to destruct it only if it was actually constructed.
+*************************************************************************/
 Singleton& Singleton::GetInstance()
 {
-    // Thread safe
-    unique_lock<mutex> l(m_mutex);
-    // Lazy initialization
-    static Singleton instance;
-    return instance;
-    
-    // C++ 11
+    // C++11 does guarantee that this is thread-safe:!!!!!!!!!!!!!!!!!
     // If control enters the declaration concurrently 
     // while the variable is being initialized, 
     // the concurrent execution shall wait for completion of the initialization.
     // 在多线程同时调用的情况下static只会被初始化一次。
-    // 也就是说，对于一个符合这个要求的C++11编译器来说，只需要基本结构就可以了。
+    // 也就是说，对于一个符合这个要求的C++11编译器来说，只需要基本结构就可以了。不需要lock
+    // 也就是这个其实不是一定需要！！！！！！！！！！！！！
+    unique_lock<mutex> l(m_mutex);
+    // Lazy initialization 只有在第一次使用的时候才需要初始化出一个singleton对象
+    static Singleton instance;
+    return instance;
 }
 
-// Double locking 
-Singleton& Singleton::GetInstanceDoubleLocking()
+// Double locking 貌似这种return *m_instance 而不是pointer也可以？？
+Singleton& Singleton::GetInstancePointerDoubleLocking()
 {
     if (m_instance == nullptr)
     {
