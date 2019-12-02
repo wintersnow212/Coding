@@ -20,7 +20,7 @@ public:
     // C++ allows the function call operator() to be overloaded, 
     // such that an object instantiated from a class can be "called"
     // like a function
-    bool operator() (Interval a, Interval b)
+    bool operator() (const Interval& a, const Interval& b) const
     {
         return a.end > b.end;
     }
@@ -51,6 +51,7 @@ int minMeetingRooms(vector<Interval>& intervals) {
 */
 
 struct complx
+//class complx
 {
     double real;
     double imag;
@@ -101,13 +102,33 @@ struct complx
     /*
     For all operators where you have to choose to either implement them as 
     a member function or a non-member function, use the following rules of thumb to decide:
-
     If it is a unary operator, implement it as a member function.
     If a binary operator treats both operands equally (it leaves them unchanged), 
     implement this operator as a non-member function.
     If a binary operator does not treat both of its operands equally (usually it will change its left operand), 
     it might be useful to make it a member function of its left operand’s type, 
     if it has to access the operand's private parts.
+    
+    
+    
+    Unary operators need only one operand to perform the task or operation.
+    ++        Increment Operator
+    --        Decrement Operator
+    &        Address Of Operator
+    -        Unary Minus Operators
+    ~        (One’s Compliment) Negation Operator
+    !        Logical NOT
+    
+    Binary Operators
+    +    Binary Plus Operator
+    -    Binary Minus Operator
+    ==    Equal to Operator
+    <    Less than Operator
+    
+    Ternary operators
+    Ternary operators required three operands to perform the operation.
+
+    e.g ? & :
 */
     
     bool operator== (const complx& other)
@@ -116,10 +137,10 @@ struct complx
     }
 };
 
-bool operator== (const complx& a, const complx& b)
-{
-    return a.real == b.real && a.imag == b.imag;
-}
+// bool operator== (const complx& a, const complx& b)
+// {
+//     return a.real == b.real && a.imag == b.imag;
+// }
 
 
 // 这里不用的原因是因为struct default是public
