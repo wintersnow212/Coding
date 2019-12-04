@@ -1,20 +1,20 @@
+/******************************************************************************
+
+                              Online C++ Compiler.
+               Code, Compile, Run and Debug C++ program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
 /*
 Cuckoo Hash 是一种hash冲突解决方法， 其目的是即时使用简易的hash function 也能够实现hash key的均匀分布。
-
 基本思想是使用2个hash函数来处理碰撞，从而每个key都对应到2个位置。
-
 插入操作如下：
-
 1. 对key值hash，生成两个hash key值，hashk1和 hashk2, 如果对应的两个位置上有一个为空，那么直接把key插入即可。
-
 2. 否则，任选一个位置，把key值插入，把已经在那个位置的key值踢出来。
-
 3. 被踢出来的key值，需要重新插入，直到没有key被踢出为止。
 cuckoo hashing处理碰撞的方法，就是把原来占用位置的这个元素踢走，不过被踢出去的元素还要比鸟蛋幸运，因为它还有一个备用位置可以安置，
 如果备用位置上还有人，再把它踢走，如此往复。直到被踢的次数达到一个上限，才确认哈希表已满，并执行rehash操作
-
 Lookups take worstcase time O(1) because only two locations must be checked
-
 Deletions take worstcase time O(1) because only two locations must be checked.
 */
 
@@ -23,7 +23,6 @@ To insert an element x, start by inserting it into table 1.
 ● If h₁(x) is empty, place x there.
 ● Otherwise, place x there, evict the old element y, and try placing y into table 2.
 ● Repeat this process, bouncing between tables, until all elements stabilize.
-
 An insertion fails if the displacements form an infinite cycle.
 ● If that happens, perform a rehash by choosing a new h₁ and h₂ and inserting all elements back into the tables.
 ● Multiple rehashes might be necessary before this succeeds.
@@ -35,6 +34,8 @@ An insertion fails if the displacements form an infinite cycle.
 #include<iostream>
 #include <climits>
 #include <vector>
+#include <string>
+#include <unordered_map>
 using namespace std;
 
 // upper bound on number of elements in our set 
@@ -51,7 +52,32 @@ int hashtable[ver][MAXN];
 int pos[ver];
 
 vector<std::hash<int>> hashers(2);
-  
+
+size_t hasher1(string key)
+{
+    size_t hashVal = 1;
+    for (auto c : key)
+    {
+        hashVal = 33*hashVal + c;
+    }
+    
+    return hashVal;
+}
+
+size_t hasher2(string key)
+{
+    size_t hashVal = 1;
+    for (auto c : key)
+    {
+        hashVal = 37*hashVal + c;
+    }
+    
+    return hashVal;
+}
+
+typedef size_t (*HashFunc) (string key);
+
+unordered_map<int, HashFunc> hashMap;
 /* function to fill hash table with dummy value 
  * dummy value: INT_MIN 
  * number of hashtables: ver */
@@ -64,24 +90,31 @@ void initTable()
             hashtable[i][j] = INT_MIN; 
         }
     }
+    
+    hashMap[0] = &hasher1;
+    hashMap[1] = &hasher2;
 } 
-  
+
 /* return hashed value for a key 
  * function: ID of hash function according to which 
     key has to hashed 
  * key: item to be hashed */
 int myHash(int function, int key) 
 { 
+    return hashMap[function](to_string(key));
     // if (function == 1)
     // { 
-    //     return key%MAXN;
+    //     //return key%MAXN;
+    //     //return hashers[function](key);
+    //     return hasher1(to_string(key));
     // }
     // else
     // {
-    //     return (key/MAXN)%MAXN; 
+    //     return hasher2(to_string(key));
+    //     //return (key/MAXN)%MAXN; 
     // }
     
-    return hashers[function](key);
+    //return hashers[function](key);
 } 
 
   
