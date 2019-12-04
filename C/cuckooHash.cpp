@@ -32,10 +32,11 @@ An insertion fails if the displacements form an infinite cycle.
 // http://www.keithschwarz.com/interesting/code/cuckoo-hashmap/CuckooHashMap.java.html
 
 
-// C++ program to demonstrate working of Cuckoo 
-// hashing. 
-#include<bits/stdc++.h> 
-  
+#include<iostream>
+#include <climits>
+#include <vector>
+using namespace std;
+
 // upper bound on number of elements in our set 
 #define MAXN 11
   
@@ -47,7 +48,9 @@ An insertion fails if the displacements form an infinite cycle.
 int hashtable[ver][MAXN]; 
   
 // Array to store possible positions for a key 
-int pos[ver]; 
+int pos[ver];
+
+vector<std::hash<int>> hashers(2);
   
 /* function to fill hash table with dummy value 
  * dummy value: INT_MIN 
@@ -55,24 +58,30 @@ int pos[ver];
 void initTable() 
 { 
     for (int j=0; j<MAXN; j++) 
+    {
         for (int i=0; i<ver; i++) 
+        {
             hashtable[i][j] = INT_MIN; 
+        }
+    }
 } 
   
 /* return hashed value for a key 
  * function: ID of hash function according to which 
     key has to hashed 
  * key: item to be hashed */
-int hash(int function, int key) 
+int myHash(int function, int key) 
 { 
-    if (function == 1)
-    { 
-        return key%MAXN;
-    }
-    else
-    {
-        return (key/MAXN)%MAXN; 
-    }
+    // if (function == 1)
+    // { 
+    //     return key%MAXN;
+    // }
+    // else
+    // {
+    //     return (key/MAXN)%MAXN; 
+    // }
+    
+    return hashers[function](key);
 } 
 
   
@@ -87,7 +96,7 @@ void insert(int key, int tableID, int cnt, int n)
 { 
     /* if function has been recursively called max number 
        of times, stop and declare cycle. Rehash. */
-    if (cnt==n) 
+    if (cnt == 100000) 
     { 
         printf("%d unpositioned\n", key); 
         printf("Cycle present. REHASH.\n"); 
@@ -97,12 +106,18 @@ void insert(int key, int tableID, int cnt, int n)
     /* calculate and store possible positions for the key. 
      * check if key already present at any of the positions. 
       If YES, return. */
-    for (int i= 0; i<ver; i++) 
-    { 
-        pos[i] = hash(i+1, key); 
+    for (int i= 0; i < ver; i++) 
+    {
+        //pos[i] = myHash(i+1, key);
+        pos[i] = myHash(i, key) % MAXN;
         if (hashtable[i][pos[i]] == key) 
-           return; 
+        {
+            return;
+        }
     } 
+    
+    
+    
   
     /* check if another key is already present at the 
        position for the new key in the table 
@@ -145,8 +160,12 @@ void cuckoo(int keys[], int n)
     // start with placing every key at its position in 
     // the first hash table according to first hash 
     // function 
-    for (int i= 0, cnt = 0; i < n; i++, cnt=0) 
+    for (int i= 0; i < n; i++)
+    {
+        int cnt = 0;
         insert(keys[i], 0, cnt, n); 
+    }
+        
   
     //print the final hash tables 
     printTable(); 
@@ -172,7 +191,7 @@ int main()
   
     int m = sizeof(keys_2)/sizeof(int); 
   
-    cuckoo(keys_2, m); 
+    //cuckoo(keys_2, m); 
   
     return 0; 
 } 
