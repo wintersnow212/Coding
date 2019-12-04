@@ -69,7 +69,7 @@ size_t hasher2(string key)
     size_t hashVal = 1;
     for (auto c : key)
     {
-        hashVal = 37*hashVal + c;
+        hashVal = 33*hashVal + c;
     }
     
     return hashVal;
@@ -125,48 +125,88 @@ int myHash(int function, int key)
    in order to place the first input key 
  * n: maximum number of times function can be recursively 
    called before stopping and declaring presence of cycle */
-void insert(int key, int tableID, int cnt, int n) 
-{ 
-    /* if function has been recursively called max number 
-       of times, stop and declare cycle. Rehash. */
-    if (cnt == 100000) 
-    { 
+// void insert(int key, int tableID, int cnt, int n) 
+// { 
+//     /* if function has been recursively called max number 
+//       of times, stop and declare cycle. Rehash. */
+//     if (cnt == n) 
+//     { 
+//         printf("%d unpositioned\n", key); 
+//         printf("Cycle present. REHASH.\n"); 
+//         return; 
+//     } 
+  
+//     /* calculate and store possible positions for the key. 
+//      * check if key already present at any of the positions. 
+//       If YES, return. */
+//     // for (int i= 0; i < ver; i++) 
+//     // {
+//     //     //pos[i] = myHash(i+1, key);
+//     //     pos[i] = myHash(i, key) % MAXN;
+//     //     if (hashtable[i][pos[i]] == key) 
+//     //     {
+//     //         return;
+//     //     }
+//     // } 
+//     pos[tableID] = myHash(tableID, key) % MAXN;
+//     if (hashtable[tableID][pos[tableID]] == key) 
+//     {
+//         return;
+//     }
+
+//     /* check if another key is already present at the 
+//       position for the new key in the table 
+//      * If YES: place the new key in its position 
+//      * and place the older key in an alternate position 
+//       for it in the next table */
+//     if (hashtable[tableID][pos[tableID]] != INT_MIN) 
+//     { 
+//         int dis = hashtable[tableID][pos[tableID]]; 
+//         hashtable[tableID][pos[tableID]] = key; 
+//         // 把它挤出去了 换一个table继续insert
+//         insert(dis, (tableID+1)%ver, cnt+1, n); 
+//     } 
+//     else 
+//     {
+//     //else: place the new key in its position 
+//       hashtable[tableID][pos[tableID]] = key; 
+//     }
+// } 
+
+void insert(int key, int tableID, int n) 
+{
+    while (true)
+    {
+        for (int i = 0; i < 100; ++i)
+        {
+            pos[tableID] = myHash(tableID, key) % MAXN;
+            if (hashtable[tableID][pos[tableID]] == key) 
+            {
+                return;
+            }
+
+            if (hashtable[tableID][pos[tableID]] != INT_MIN) 
+            { 
+                int dis = hashtable[tableID][pos[tableID]]; 
+                hashtable[tableID][pos[tableID]] = key; 
+                // 把它挤出去了 换一个table继续insert
+                //insert(dis, (tableID+1)%ver, cnt+1, n); 
+                tableID = (tableID+1)%ver;
+                key = dis;
+            } 
+            else 
+            {
+                //else: place the new key in its position 
+                hashtable[tableID][pos[tableID]] = key; 
+                return;
+            }
+        }
+        
+        
         printf("%d unpositioned\n", key); 
         printf("Cycle present. REHASH.\n"); 
-        return; 
-    } 
-  
-    /* calculate and store possible positions for the key. 
-     * check if key already present at any of the positions. 
-      If YES, return. */
-    for (int i= 0; i < ver; i++) 
-    {
-        //pos[i] = myHash(i+1, key);
-        pos[i] = myHash(i, key) % MAXN;
-        if (hashtable[i][pos[i]] == key) 
-        {
-            return;
-        }
-    } 
-    
-    
-    
-  
-    /* check if another key is already present at the 
-       position for the new key in the table 
-     * If YES: place the new key in its position 
-     * and place the older key in an alternate position 
-       for it in the next table */
-    if (hashtable[tableID][pos[tableID]]!=INT_MIN) 
-    { 
-        int dis = hashtable[tableID][pos[tableID]]; 
-        hashtable[tableID][pos[tableID]] = key; 
-        // 把它挤出去了 换一个table继续insert
-        insert(dis, (tableID+1)%ver, cnt+1, n); 
-    } 
-    else //else: place the new key in its position 
-       hashtable[tableID][pos[tableID]] = key; 
-} 
+    }
+}
   
 /* function to print hash table contents */
 void printTable() 
@@ -196,7 +236,8 @@ void cuckoo(int keys[], int n)
     for (int i= 0; i < n; i++)
     {
         int cnt = 0;
-        insert(keys[i], 0, cnt, n); 
+        //insert(keys[i], 0, cnt, n); 
+        insert(keys[i], 0, n);
     }
         
   
@@ -210,7 +251,7 @@ int main()
     /* following array doesn't have any cycles and 
        hence  all keys will be inserted without any 
        rehashing */
-    int keys_1[] = {20, 50, 53, 75, 100, 67, 105, 
+    int keys_1[] = {23, 50, 53, 75, 100, 67, 105, 
                     3, 36, 39}; 
   
     int n = sizeof(keys_1)/sizeof(int); 
@@ -219,12 +260,12 @@ int main()
   
     /* following array has a cycle and hence we will 
        have to rehash to position every key */
-    int keys_2[] = {20, 50, 53, 75, 100, 67, 105, 
-                    3, 36, 39, 6}; 
+    // int keys_2[] = {20, 50, 53, 75, 100, 67, 105, 
+    //                 3, 36, 11, 39, 6, 13}; 
   
-    int m = sizeof(keys_2)/sizeof(int); 
+    // int m = sizeof(keys_2)/sizeof(int); 
   
-    //cuckoo(keys_2, m); 
+    // cuckoo(keys_2, m); 
   
     return 0; 
 } 
