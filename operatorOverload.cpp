@@ -50,43 +50,107 @@ int minMeetingRooms(vector<Interval>& intervals) {
     In this lesson, we’ll cover the friend function way    
 */
 
-struct complx
+struct Complx
 //class complx
 {
     double real;
     double imag;
     // If you have own constructor, then compiler will not generate 
     // Then you need to define your own
-    complx()
-    {
-        
-    }
-    complx( double r, double i )
+    Complx(){ }
+    
+    Complx(double r, double i )
     {
         real = r;
         imag = i;
     }
-     
-    complx operator+ (const complx& other) const
+    
+    
+    // Copy constructor
+    // Should be deep copy I just don't have the pointer object this time
+    Complx (const Complx& other)
+        : real(other.real)
+        , imag(other.imag)
     {
-        complx result;
-        result.real = (this->real + other.real);
-        result.imag = (this->imag + other.imag);
+        
+    }
+    /*
+        Assignment Operator =
+        这个其实也是copy assignment
+        In summary, the guidelines for the assignment operator are:
+        1. Take a const-reference for the argument (the right-hand side of the 
+        assignment).
+        2.Return a reference to the left-hand side, to support safe and 
+        reasonable operator chaining. (Do this by returning *this.)
+        3.Check for self-assignment, by comparing the pointers (this to &rhs).
+    */
+    Complx& operator=(const Complx& other)
+    {
+        // YOU MUST CHECK FOR SELF-ASSIGNMENT!
+        // Compare the two objects' addresses
+        if (this == &other)
+        {
+            return *this;
+        }
+        
+        // 1.  Deallocate any memory that MyClass is using internally
+        // 2.  Allocate some memory to hold the contents of rhs
+        // 3.  Copy the values from rhs into this instance
+        // 4.  Return *this
+        // 这里没有memory 操作但是有的话要小心
+        real = other.real;
+        imag = other.imag;
+        
+        return *this;
+    }
+    
+    /*
+    Compound Assignment Operators += -= *=
+    */
+    Complx& operator+= (const Complx& other)
+    {
+        real += other.real;
+        imag += other.imag;
+        
+        return *this;
+    }
+    
+    /*
+    这里就不需要像像上面的assignmen那样return class object reference(i.e. *this)
+    Binary Arithmetic Operators + - *
+    */
+    Complx operator+ (const Complx& other) const
+    {
+        // Complx result;
+        // result.real = (this->real + other.real);
+        // result.imag = (this->imag + other.imag);
+        // return result;
+        Complx result(*this);
+        result += other;
         return result;
     }
     
     // complx& never return local varibale by reference
     // complx& operator* (const complx& other) const
-    complx operator* (const complx& other) const
+    Complx operator* (const Complx& other) const
     {
-        complx result;
+        Complx result;
         result.real = (this->real * other.real);
         result.imag = (this->imag * other.imag);
         return result;
     }
     
-    // 这里不需要const的原因是caller 不是const type
-    bool operator> (const complx& other)
+    /*
+        Comparison Operators == and !=
+        这里不需要const的原因是caller 不是const type
+    */
+    bool operator==(const Complx& other) const
+    {
+        
+        return (this->real == other.real && this->imag == this->imag);
+    }
+    
+    bool operator> (const Complx& other) const
     {
         if (this->real == other.real)
         {
@@ -127,11 +191,10 @@ struct complx
     
     Ternary operators
     Ternary operators required three operands to perform the operation.
-
     e.g ? & :
 */
     
-    bool operator== (const complx& other)
+    bool operator== (const Complx& other)
     {
         return this->real == other.real && this->imag == other.imag;
     }
@@ -144,15 +207,12 @@ struct complx
 
 
 // 这里不用的原因是因为struct default是public
-std::ostream& operator<<(std::ostream& stream, const complx& other)
+std::ostream& operator<<(std::ostream& stream, const Complx& other)
 {
     stream << other.real << "." << other.imag << endl;
     
     return stream;
 }
-
-
-
 
 
 class Cents
@@ -212,13 +272,13 @@ private:
 
 int main()
 {
-    complx x(4,4);
-    complx y(4,6);
-    complx z = x + y; // calls complx::operator+()
+    Complx x(4,4);
+    Complx y(4,6);
+    Complx z = x + y; // calls complx::operator+()
     // cout << z.real << endl;
     // cout << z.imag << endl;
     cout << z << endl;
-    complx m = x * y;
+    Complx m = x * y;
     // cout << m.real << endl;
     // cout << m.imag << endl;
     cout << m << endl;
