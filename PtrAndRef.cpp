@@ -62,6 +62,23 @@ void arraySize2(int p[])
     cout << "Array size is " << (sizeof(p) / sizeof(int)) << endl;
 }
 
+void reverse(char* s)
+{
+    int len   = strlen(s);
+    cout << len << endl;
+    int start = 0;
+    int end   = len-1;
+    
+    while (start < end)
+    {
+        // cout << s[start] << endl;
+        // cout << s[end] << endl;
+        swap(s[start++], s[end--]);
+        // char temp = s[start];
+        // s[start++] = s[end];
+        // s[end--] = temp;
+    }
+}
 void strLenTest(char* p)
 {
     // 这里可计算的原因 因为strlen是一个库函数 它原理其实是去找null terminator
@@ -219,6 +236,25 @@ int main() {
     {
         cout << "We are comparing the objects and we need to overload the == " << endl;
     }
+    
+     /*
+        The difference here is that
+
+        char *s = "Hello world";
+        will place "Hello world" in the read-only parts of the memory, and making s a pointer to that makes any writing operation on this memory illegal.
+
+        While doing:
+
+        char s[] = "Hello world";
+        puts the literal string in read-only memory and copies the string to newly allocated memory on the stack. Thus making
+
+        s[0] = 'J';
+        legal.
+    */
+     char s[] = "hello word";
+    //char* s = "hello word";
+    reverse(s);
+    cout << s << endl;
     
     return 0;
 }

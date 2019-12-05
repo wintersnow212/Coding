@@ -6,6 +6,11 @@ using namespace std;
 class A
 {
 public:
+    A ()
+    {
+        cout << "Empty constructor called" << endl;
+    }
+    
     A (string name):m_val(name)
     {
         cout << "constructor called" << endl;
@@ -196,28 +201,30 @@ int main()
 
     auto TX = make_shared<A>("TX");
     
+    /* 这里如何使用smart pointer 其实想到他的底层实现就好
+       是有两个operator的override ： * 和 ->
+    // 注意这里是return的 sharedPtr里面的m_ptr member
+    // 和上面的copy assignment 或者 copy constructor不同
+    T* operator-> ()
+    {
+        return m_ptr;
+    }
 
+    T& operator* ()
+    {
+        return *m_ptr;
+    }
+    
+    
+    
+    */
+    cout << TX->GetVal() << endl;
     //partnerUp(YZ, TX);
     cout << "--------Shared Pointer------------" << endl;
     
     // That’s it. No deallocations took place.
     
-    
+ 
     weakPtrTest();
     return 0;
 }
-
-
-/* 
-Your previous Python 2 content is preserved below:
-
-# This is a sandbox to experiment with CoderPad's execution capabilities.
-# It's a temporary, throw-away session only visible to you.
-
-def say_hello():
-    print 'Hello, World'
-
-for i in xrange(5):
-    say_hello()
-
- */
