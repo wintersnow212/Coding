@@ -1,10 +1,3 @@
-/******************************************************************************
-
-                              Online C++ Compiler.
-               Code, Compile, Run and Debug C++ program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
 /*
 Cuckoo Hash 是一种hash冲突解决方法， 其目的是即时使用简易的hash function 也能够实现hash key的均匀分布。
 基本思想是使用2个hash函数来处理碰撞，从而每个key都对应到2个位置。
@@ -69,7 +62,7 @@ size_t hasher2(string key)
     size_t hashVal = 1;
     for (auto c : key)
     {
-        hashVal = 33*hashVal + c;
+        hashVal = 37 * hashVal + c;
     }
     
     return hashVal;
@@ -125,54 +118,6 @@ int myHash(int function, int key)
    in order to place the first input key 
  * n: maximum number of times function can be recursively 
    called before stopping and declaring presence of cycle */
-// void insert(int key, int tableID, int cnt, int n) 
-// { 
-//     /* if function has been recursively called max number 
-//       of times, stop and declare cycle. Rehash. */
-//     if (cnt == n) 
-//     { 
-//         printf("%d unpositioned\n", key); 
-//         printf("Cycle present. REHASH.\n"); 
-//         return; 
-//     } 
-  
-//     /* calculate and store possible positions for the key. 
-//      * check if key already present at any of the positions. 
-//       If YES, return. */
-//     // for (int i= 0; i < ver; i++) 
-//     // {
-//     //     //pos[i] = myHash(i+1, key);
-//     //     pos[i] = myHash(i, key) % MAXN;
-//     //     if (hashtable[i][pos[i]] == key) 
-//     //     {
-//     //         return;
-//     //     }
-//     // } 
-//     pos[tableID] = myHash(tableID, key) % MAXN;
-//     if (hashtable[tableID][pos[tableID]] == key) 
-//     {
-//         return;
-//     }
-
-//     /* check if another key is already present at the 
-//       position for the new key in the table 
-//      * If YES: place the new key in its position 
-//      * and place the older key in an alternate position 
-//       for it in the next table */
-//     if (hashtable[tableID][pos[tableID]] != INT_MIN) 
-//     { 
-//         int dis = hashtable[tableID][pos[tableID]]; 
-//         hashtable[tableID][pos[tableID]] = key; 
-//         // 把它挤出去了 换一个table继续insert
-//         insert(dis, (tableID+1)%ver, cnt+1, n); 
-//     } 
-//     else 
-//     {
-//     //else: place the new key in its position 
-//       hashtable[tableID][pos[tableID]] = key; 
-//     }
-// } 
-
 void insert(int key, int tableID, int n) 
 {
     while (true)
