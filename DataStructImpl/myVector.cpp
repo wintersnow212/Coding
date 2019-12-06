@@ -66,8 +66,7 @@ public:
         return _size;
     }
 
-private:
-    void reverseSpace(int newCap)
+     void reserve(int newCap)
     {
 #if REALLOC == 1
         arr = static_cast<T*>(realloc(arr, sizeof(T) * newCap));
@@ -103,6 +102,7 @@ private:
         
     }
     
+private:
     T* arr;
     int _cap;
     int _size;
@@ -110,32 +110,21 @@ private:
 
 /*
 How long does it take to do a total of n push_back() operations, starting with an empty vector?
-
 Let k be the smallest integer such that n ≤ 2k. For the sake of simplicity, we'll do the analysis as if we were actually going to do 2k pushes.
-
 Let m be the current size() of the vector
-
 if m is a power of 2, say, 2i then the array is full and we do O(m) work on the next call to push_back()
-
 if m ≠ 2i, then we do O(1) work on next call
-
 Total effort is
-
 ∑i=1k(O(2i)+∑j=12i-1O(1))
    =O(∑i=1k(2i))
    =O(1+2+4+...+2k)
    =O(2k+1-1)
    =O(2k+1)
 Total effort is O(2k+1).
-
 But we started with the statement that n=2k, so this is
-
 =O(2n)=O(n)
-
 So the true answer is that vector::push_back does have a worst case of O(n), but in special circumstances that cost may average (amortizes) to O(1) over a sequence of n calls.
-
 In fact, if you were to look at the required behavior for vector::push_back listed in the C++ language standard, you would find that the required O(1) behavior, is, indeed, a requirement for amortized time, not a requirement on the worst-case time.
-
 */
 template<typename T>
 void myVec<T>::push_back(const T& element)
@@ -144,11 +133,11 @@ void myVec<T>::push_back(const T& element)
     {
         if (_cap == 0)
         {
-            reverseSpace(1);
+            reserve(1);
         }
         else
         {
-            reverseSpace(_cap * 2);
+            reserve(_cap * 2);
         }
     }
 
