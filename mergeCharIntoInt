@@ -1,0 +1,23 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+
+int main()
+{
+    vector<char> charVec = {12 + '0', 24 + '0', 36 + '0', 48 + '0'};
+    int num = 0;
+    for (int i = 0; i < 4; ++i)
+    {
+        num |= (charVec[i] << (8 * i));
+    }
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        int mask =  0xff << (8 * i);
+        
+        char c = (num & mask) >> (8 * i);
+        
+        cout << c - '0' << endl;
+    }
+}  
