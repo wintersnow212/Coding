@@ -94,20 +94,16 @@ void initTable()
  * key: item to be hashed */
 int myHash(int function, int key) 
 { 
-    return hashMap[function](to_string(key));
-    // if (function == 1)
-    // { 
-    //     //return key%MAXN;
-    //     //return hashers[function](key);
-    //     return hasher1(to_string(key));
-    // }
-    // else
-    // {
-    //     return hasher2(to_string(key));
-    //     //return (key/MAXN)%MAXN; 
-    // }
-    
-    //return hashers[function](key);
+    //return hashMap[function](to_string(key));
+    if (function == 1)
+    { 
+        return key%MAXN;
+    }
+    else
+    {
+        //return hasher2(to_string(key));
+        return (key/MAXN)%MAXN; 
+    }
 } 
 
   
