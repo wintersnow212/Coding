@@ -82,7 +82,62 @@ SyncStream<Stream> synchronized(Stream &stream)
 {
     return SyncStream<Stream>(stream);
 }
- 
+
+#include <fstream>
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <functional>
+using namespace std;
+
+mutex mut;
+
+void protectedPrint(string msg, int i)
+{
+     /*********************************************
+     1. 直接用mutex 不好的原因是因为如果下面的cout throw exception 不好
+     2. The difference is that you can lock and unlock a std::unique_lock.    
+        std::lock_guard
+        will be locked only once on construction and unlocked on destruction.
+     *********************************************/
+    lock_guard<std::mutex> guard(mut); // RAII 保证mutex unlock！！！
+    //mu.lock();
+    cout << msg << i << endl;
+    //mu.unlock();
+}
+
+class StreamOutput
+{
+public:
+    void protectedPrint(string msg, int i)
+    {
+         /*********************************************
+         1. 直接用mutex 不好的原因是因为如果下面的cout throw exception 不好
+         2. The difference is that you can lock and unlock a std::unique_lock.    
+            std::lock_guard
+            will be locked only once on construction and unlocked on destruction.
+         *********************************************/
+        lock_guard<std::mutex> guard(mu); // RAII 保证mutex unlock！！！
+        //mu.lock();
+        //cout << msg << i << endl;
+        //mu.unlock();
+        f << msg << i << endl;
+    }
+private:
+    std::mutex mu;
+    ofstream f;
+};
+
+
+void func(StreamOutput& sf)
+{
+    for (int i = 0; i > -15; --i)
+    {
+        protectedPrint(string("From Func "), i);
+        //cout << "From func " << i << endl;
+    }
+}
+
 int main() 
 {
     const int n = 100;
@@ -110,5 +165,15 @@ int main()
         future.wait();
     }
     
+    StreamOutput sf;
+    std::thread t1(func, std::ref(sf));
+    for (int i = 0; i < 15; ++i)
+    {
+        protectedPrint(string("From Main "), i);
+        //cout << "From Main" << i << endl;
+    }
+    
+    t1.join();
+ 
     return 0;
 }
