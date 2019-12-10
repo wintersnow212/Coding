@@ -1,4 +1,3 @@
-// http://progsch.net/wordpress/?p=81
 #include <thread>
 #include <mutex>
 #include <vector>
@@ -79,10 +78,18 @@ ThreadPool::ThreadPool(size_t threads)
 {
     for(size_t i = 0; i < threads;++i)
     {
-        //workers.push_back(std::thread(Worker(*this)));
+        /*******************************************************
+           workers.push_back(std::thread(Worker(*this)));
+           operator()() overloads the call operator. 
+           The first “()” indicates the operator to overload, 
+           the second is the argument list of the overload. 
+           So a object of type Worker can be called like it was a function (syntactically speaking). 
+           So we can then pass a Worker object to a thread constructor which the thread will start executing. 
+           In the updated version on github the Worker class is gone btw. and replaced by a lambda.
         // capture member variable via this pointer!!!!!! 避免了friend class
         // 貌似是working的！！！
         //auto lambdaFunc = [ThreadPool = ThreadPool]()
+        ******************************************************************/
         auto lambdaFunc = [this]()
                         {
                             std::function<void()> task;
@@ -93,6 +100,7 @@ ThreadPool::ThreadPool(size_t threads)
 
                                     // look for a work item
                                     while(!stop && tasks.empty())
+                                    //while(tasks.empty())
                                     { // if there are none wait for notification
                                         condition.wait(lock);
                                     }
@@ -126,7 +134,7 @@ ThreadPool::~ThreadPool()
     condition.notify_all();
      
     // join them
-    for(size_t i = 0;i < workers.size();++i)
+    for(size_t i = 0; i < workers.size();++i)
         workers[i].join();
 }
 
@@ -150,7 +158,6 @@ void ThreadPool::enqueue(F f)
 
 int main()
 {
-    
     ThreadPool pool(4);
 
     for (int i = 0; i < 8; ++i) 
@@ -162,7 +169,7 @@ int main()
                 return i*i;
             });
     }
-    
+
     // 这里的main thread不会被block
     std::cout << "From main thread" << std::endl;
 
