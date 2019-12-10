@@ -31,8 +31,10 @@ private:
     // need to keep track of threads so we can join them
     std::vector< std::thread > workers;
  
-    // the task queue
-    std::deque< std::function<void()> > tasks;
+    // the task queue is not fixed size 
+    // 所以其实相当于producer是non-blocking的
+    // 但是consumer是blocking
+    std::deque< std::function<void()>> tasks;
  
     // synchronization
     std::mutex queue_mutex;
@@ -58,12 +60,14 @@ void Worker::operator()()
                 return;
  
             // get the task from the queue
+            // 这里才会为执行task做准备
             task = pool.tasks.front();
             pool.tasks.pop_front();
  
         }   // release lock
  
         // execute the task
+        // 执行task
         task();
     }
 }
@@ -84,7 +88,7 @@ ThreadPool::~ThreadPool()
     condition.notify_all();
      
     // join them
-    for(size_t i = 0;i<workers.size();++i)
+    for(size_t i = 0;i < workers.size();++i)
         workers[i].join();
 }
 
@@ -97,6 +101,8 @@ void ThreadPool::enqueue(F f)
         std::unique_lock<std::mutex> lock(queue_mutex);
          
         // add the task
+        // 这里只是push task 但是不会invoke std::thread
+        // 这样thread不会去执行task
         tasks.push_back(std::function<void()>(f));
     } // release lock
      
@@ -118,6 +124,8 @@ int main()
                 return i*i;
             });
     }
+    
+    // 这里的main thread不会被block
     std::cout << "From main thread" << std::endl;
 
     // for(auto && result: results)
