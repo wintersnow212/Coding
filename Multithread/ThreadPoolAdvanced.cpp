@@ -1,5 +1,6 @@
 // https://github.com/progschj/ThreadPool
 // http://progsch.net/wordpress/?p=81
+// http://progsch.net/wordpress/?p=106
 // 太高端的写法了还用了future!!!!!
 #include <iostream>
 #include <vector>
