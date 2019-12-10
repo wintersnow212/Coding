@@ -42,6 +42,7 @@ private:
     bool stop;
 };
 
+// 这个是friend的原因是因为我们要access thread pool class的东西！！！！
 void Worker::operator()()
 {
     std::function<void()> task;
@@ -77,7 +78,44 @@ ThreadPool::ThreadPool(size_t threads)
     :   stop(false)
 {
     for(size_t i = 0; i < threads;++i)
-        workers.push_back(std::thread(Worker(*this)));
+    {
+        //workers.push_back(std::thread(Worker(*this)));
+        // capture member variable via this pointer!!!!!! 避免了friend class
+        // 貌似是working的！！！
+        //auto lambdaFunc = [ThreadPool = ThreadPool]()
+        auto lambdaFunc = [this]()
+                        {
+                            std::function<void()> task;
+                            while(true)
+                            {
+                                {   // acquire lock
+                                    std::unique_lock<std::mutex> lock(queue_mutex);
+
+                                    // look for a work item
+                                    while(!stop && tasks.empty())
+                                    { // if there are none wait for notification
+                                        condition.wait(lock);
+                                    }
+
+                                    if(stop) // exit if the pool is stopped
+                                        return;
+
+                                    // get the task from the queue
+                                    // 这里才会为执行task做准备
+                                    task = tasks.front();
+                                    tasks.pop_front();
+
+                                }   // release lock
+
+                                // execute the task
+                                // 执行task
+                                task();
+                            }
+
+                        };
+        workers.push_back(std::thread(lambdaFunc));
+    }
+        
 }
    
 // the destructor joins all threads
