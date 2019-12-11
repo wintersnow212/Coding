@@ -224,7 +224,8 @@ int main() {
     // Now wait for all the worker thread to finish i.e.
     // Call join() function on each of the std::thread object
     // 这里comment out join也能执行 但是会有错因为在thread delete的时候
-    std::for_each(threadList.begin(),threadList.end(), std::mem_fn(&std::thread::join));
+    //std::for_each(threadList.begin(),threadList.end(), std::mem_fn(&std::thread::join));
+    std::for_each(threadList.begin(), threadList.end(), [](std::thread& th){ th.join(); });
     // 这里一定要是& 因为thread delete了copy constructor
     // for (auto& t : threadList)
     // {
