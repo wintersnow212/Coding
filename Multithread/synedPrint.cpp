@@ -89,7 +89,8 @@ SyncStream<Stream> synchronized(Stream &stream)
 #include <mutex>
 #include <functional>
 using namespace std;
-
+// 这里的mutex是global scope是关键
+// otherwise 就像下面ofstream class一样 让mutex变成class scope
 mutex mut;
 
 void protectedPrint(string msg, int i)
