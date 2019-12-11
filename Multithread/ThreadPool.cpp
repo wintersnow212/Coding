@@ -5,7 +5,21 @@
 #include <deque>
 #include <functional>
 #include <iostream>
- 
+#include <string>
+
+
+std::mutex mu;
+// 应该还有更好的print helper function!!!!!
+void printHelper(const std::string& str, int i = 0)
+{
+    // mutex 不用放在local scope 
+    // 要么global scope;要么class scope被shared
+    //std::mutex mu;
+    std::unique_lock<std::mutex> l(mu);
+    
+    std::cout << str << " " << i << std::endl;
+}
+
 class ThreadPool;
   
 // our worker thread objects
@@ -95,6 +109,9 @@ ThreadPool::ThreadPool(size_t threads)
                             std::function<void()> task;
                             while(true)
                             {
+                                // 这里放在外面可以保证所有用这个queue_mutex的thread不会被interrupt
+                                //std::unique_lock<std::mutex> lock(queue_mutex);
+                                
                                 {   // acquire lock
                                     std::unique_lock<std::mutex> lock(queue_mutex);
 
@@ -105,7 +122,7 @@ ThreadPool::ThreadPool(size_t threads)
                                         condition.wait(lock);
                                     }
 
-                                    if(stop) // exit if the pool is stopped
+                                    if (stop) // exit if the pool is stopped
                                         return;
 
                                     // get the task from the queue
@@ -163,15 +180,18 @@ int main()
     for (int i = 0; i < 8; ++i) 
     {
         pool.enqueue([i] {
-                std::cout << "hello " << i << std::endl;
+                //std::cout << "hello " << i << std::endl;
+                printHelper("hello", i);
                 std::this_thread::sleep_for(std::chrono::seconds(1));
-                std::cout << "world " << i << std::endl;
+                printHelper("world", i);
+                //std::cout << "world " << i << std::endl;
                 return i*i;
             });
     }
 
     // 这里的main thread不会被block
-    std::cout << "From main thread" << std::endl;
+    printHelper("From main thread");
+    //std::cout << "From main thread" << std::endl;
 
     // for(auto && result: results)
     //     std::cout << result.get() << ' ';
