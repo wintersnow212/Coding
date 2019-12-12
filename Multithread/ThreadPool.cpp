@@ -1,3 +1,5 @@
+// http://progsch.net/wordpress/?p=81
+// http://progsch.net/wordpress/?p=106
 #include <thread>
 #include <mutex>
 #include <vector>
