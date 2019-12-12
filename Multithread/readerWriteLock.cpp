@@ -1,3 +1,4 @@
+// http://willzhang4a58.github.io/2016/07/rwlock/
 // 1. 一个 int status variable 表示有多少正在read 或者正在write的user; 0 表示没人读也没人写
 // 2. 两个variable 一个表示等待读的user 另外一个表示等待写的user
 // 3. 两个condition variable 一个是read的 一个是write的
