@@ -91,7 +91,7 @@ struct BoundedBuffer {
         l.unlock();
         not_empty.notify_one();
     }
-
+    
     int pop(){
     
         // 所有的lock都是build around the underlying  mutex
@@ -135,28 +135,36 @@ struct BoundedBuffer {
 
         return result;
     }
+    
+    int size()
+    {
+        return count;
+    }
 };
 
 //void consumer(int id, BoundedBuffer& buffer){
 void consumer(int id, BoundedBuffer<200>& buffer){
-    for(int i = 0; i < 50; ++i)
+    //for(int i = 0; i < 18; ++i)
+    while (buffer.size() > 0)
     {
         int value = buffer.pop();
         //std::cout << "Consumer " << id << " fetched " << value << std::endl;
         synchronized(std::cout) << "Consumer " << id << " fetched " << value << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
 //void producer(int id, BoundedBuffer& buffer){
 void producer(int id, BoundedBuffer<200>& buffer){
-    for(int i = 0; i < 75; ++i)
+    for(int i = 0; i < 25; ++i)
     {
         buffer.push(i);
         //std::cout << "Produced " << id << " produced " << i << std::endl;
         // 这里print 也会乱序
         synchronized(std::cout) << "Produced " << id << " produced " << i << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
