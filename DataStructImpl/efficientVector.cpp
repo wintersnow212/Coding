@@ -24,6 +24,7 @@ public:
           :valIdx(0)
           ,innerIdx(0)
           ,outerIdx(0)
+          ,smallValue(0)
       {
         
       }
@@ -55,7 +56,7 @@ public:
           valIdx++;
       }
       
-      int operator[](int outsideIdx)
+      int& operator[](int outsideIdx)
       {
           int outer = idxMap[outsideIdx].first;
           int inner = idxMap[outsideIdx].second;
@@ -67,7 +68,9 @@ public:
           {
               int mask = 0xff << (8 * inner);
               char val = (vec[outer] & mask) >> (8 * inner);
-              return val - '0';
+              smallValue = val - '0';
+              // create 一个member vaiable 就可以return by reference
+              return smallValue;
           }
       }
     
@@ -82,6 +85,7 @@ private:
     int valIdx;
     int innerIdx;
     int outerIdx;
+    int smallValue;
 };
 
 
