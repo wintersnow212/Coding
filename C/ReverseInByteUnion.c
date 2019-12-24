@@ -1,4 +1,46 @@
+// Version 1
+#include <stdio.h>
+#include <stdint.h> 
+#include <string.h>
+#include <stdlib.h>
+#include <limits.h>
 
+union Word
+{
+    uint32_t dword;
+    uint8_t bytes[4];
+};
+
+Word Reverse(Word w)
+{
+    Word result;
+    for (int i = 0; i < 4; ++i)
+    {
+        result.bytes[4-1-i] = w.bytes[i];
+    }
+    return result;
+}
+
+int bitShiftReverse(int val)
+{
+    return ((val & 0x000000ff) << 24 | (val & 0x0000ff00) << 8 |
+            (val & 0x00ff0000) >> 8  | (val & 0xff000000) >> 24);
+}
+int main()
+{
+    Word a;
+    a.dword = 0x12345678;
+    printf("Reverse byte order: %2x\n\n", Reverse(a).dword);
+    
+    int rev = bitShiftReverse(a.dword);
+    printf("Reverse byte order: %2x\n\n", rev);
+    
+    int arr[8] = {};
+    printf("Size of array: %d\n", sizeof(arr));
+    return 0;
+}
+
+// Version 2
 #include <stdio.h>
 #include <stdint.h> 
 #include <string.h>
