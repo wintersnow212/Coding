@@ -1,5 +1,7 @@
 #include <iostream>
 using namespace std;
+
+// Function specialization can not be partial speciliazation
 /****************************************************************
 *  Non-type template parameter
 ****************************************************************/
