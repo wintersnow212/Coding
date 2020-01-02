@@ -163,18 +163,25 @@ int main()
 /****************************************************************************
  这个是模板型模板参数； 这里一定要用class 而不是template
 ****************************************************************************/
-// 通例
-template<typename T1, typename T2, int i, template<typename, int> class CP>
-class TMP;
+/****************************************************************************
+ 这个是模板型模板参数； 这里一定要用class 而不是template
+****************************************************************************/
+template<class T1, class T2, int I>
+class A {};            // primary template
+ 
+// 下面的这些都是上面primiar template的specification
+// 其实写法也很好想！！！ 我们那个specify了 就不需要哪个的template type了！！！
+template<class T, int I>
+class A<T, T*, I> {};  // #1: partial specialization where T2 is a pointer to T1
+ 
 
-// 完全特例化specilalization 全部都是直接输入
-template<typename T, int i> class cp00; 
-template<>
-class TMP<int, float, 2, cp00>;
-
-// 第一个参数有const修饰
-template<typename T1, typename T2, int i, template<typename, int> class CP>
-class TMP<const T1, T2, i, CP>;
-
-
+template<class T, class T2, int I>
+class A<T*, T2, I> {}; // #2: partial specialization where T1 is a pointer
+ 
+template<class T>
+class A<int, T*, 5> {}; // #3: partial specialization where T1 is int, I is 5,
+                        //     and T2 is a pointer
+ 
+template<class X, class T, int I>
+class A<X, T*, I> {};   // #4: partial specialization where T2 is a pointer
 
