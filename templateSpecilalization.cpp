@@ -59,29 +59,7 @@ template class Foo<int>;
 *  另外，可以限制模板参数在一个范围取值或满足一定关系等，这称为部分特例化
 * （partial specialization
 ****************************************************************/
-/* However if the function’s observable behavior is consistent for all the T types with the differences 
-limited to implementation details, then you can proceed. 
-Let’s proceed with an example of this (conceptual only; not C++):
-template<typename T>
-void foo(const T& x)
-{
-  switch (typeof(T)) {  // Conceptual only; not C++
-    case int:
-      // ...implementation details when T is int
-      break;
-    case std::string:
-      // ...implementation details when T is std::string
-      break;
-    default:
-      // ...implementation details when T is neither int nor std::string
-      break;
-  }
-}
-*/
-// One way to implement the above is via template specialization. Instead of a switch-statement, 
-// you end up breaking up the code into separate functions. 
-// The first function is the default case — the code to be used when T is anything other than int or std::string:
-
+/******************这个是完全实例化*******************/
 template<typename T>
 struct checkHelper
 {
@@ -107,26 +85,36 @@ bool isInt()
     return checkHelper<T>::value;
 }
 
+/******************这个是局部实例化*******************/
+// 这个也是实现了type traits
+template<typename T>
+// 这里不能写成下面的形式 
+// struct isPointer<T>
+// 因为那样是partical specification 
+// 写成这样的话 我们就缺少full specification了
+struct isPointer
+{
+    enum {value = false};
+};
 
-// // 下面的这两个完全specialization后 我们遇到这样的type直接就进来了！！！！
-// // Next are the two specializations, first for the int case…
-// template<>
-// void foo<int>(const int& x)
-// {
-//     cout << "Let us work with int type" << endl;
-//   // ...implementation details when T is int
-// }
+template<typename T>
+struct isPointer<T*>
+{
+    enum {value = true};
+};
 
-// // …and next for the std::string case…
-// template<>
-// void foo<std::string>(const std::string& x)
-// {
-//     cout << "Let us work with string type" << endl;
-//   // ...implementation details when T is std::string
-// }
-//That’s it; you’re done. The compiler will automagically select the correct specialization when it sees which T you are using.
+// 利用constexpr的表达方式 而不是利用enum
+template <typename T>
+struct is_pointerChecker
+{
+    static constexpr bool value {false};
+};
 
-
+template <typename T>
+struct is_pointerChecker<T*>
+{
+    static constexpr bool value {true};
+};
 
 int main()
 {
@@ -140,6 +128,26 @@ int main()
     }
     // declare an integer array with room for 12 integers
     StaticArray<int, 12> intArray;
+    
+    typedef int* T;
+    
+    if (isPointer<T>::value == true)
+    {
+        cout << "it is pointer type" << endl;
+    }
+    else
+    {
+        cout << "it is not pointer type" << endl; 
+    }
+    
+    if (is_pointerChecker<T>::value == true)
+    {
+        cout << "it is pointer type" << endl;
+    }
+    else
+    {
+        cout << "it is not pointer type" << endl; 
+    }
     
     // Fill it up in order, then print it backwards
     for (int count=0; count < 12; ++count)
@@ -167,4 +175,6 @@ class TMP<int, float, 2, cp00>;
 // 第一个参数有const修饰
 template<typename T1, typename T2, int i, template<typename, int> class CP>
 class TMP<const T1, T2, i, CP>;
+
+
 
