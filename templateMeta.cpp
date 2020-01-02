@@ -18,21 +18,45 @@ using namespace std;
 /****************************************************************
 Compile-time numeric calculations
 ****************************************************************/
-template <unsigned int n>
-struct factorial 
+template<unsigned int n>
+struct factorial
 {
-    enum 
-    { 
-        value = n * factorial<n - 1>::value 
+    enum
+    {
+        // SB了enum里面没有; 是data member啊！！！所以应该最多是,
+        value = n * (factorial<n-1>::value)
     };
 };
 
 // 完全实例化
-template <> // The following is a template class with no templated parameters
-struct factorial<0>  // template specialization 完全特例化
+template<>
+struct factorial<0>
 {
-    enum { value = 1 };
+    enum
+    {
+        value = 1
+    };
 };
+
+
+template<int N>
+struct fib
+{
+    enum { val = fib<N-1>::val + fib<N-2>::val};
+};
+
+template<>
+struct fib<0>
+{
+    enum {val = 0};
+};
+
+template<>
+struct fib<1>
+{
+    enum {val = 1};  
+};
+
 
 /****************************************************************
 if (condition) 
@@ -168,8 +192,10 @@ int main()
     
     cout << SizeOfT<int>::value << endl;
     
-    
+    // 调用meta template 必须要用const啊 毕竟是compile time的计算
     std::cout << factorial<4>::value << std::endl;
+    std::cout << fib<6>::val << std::endl;
+    
     
      if (isEvenNumber<16>::value == true)
     {
