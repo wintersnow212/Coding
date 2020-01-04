@@ -159,10 +159,45 @@ int* doubleValue(int x)
     return &value; // return value by address here
 } // value destroyed here
 
-
+struct Test
+{
+    int val;
+    Test()
+        : val(0)
+    {
+            
+    }
+    Test(int v)
+        :val(v)
+    {
+        
+    }
+};
 // To execute C++, please define "int main()"
 int main() 
 {
+    /*******************************
+    Simple test 就很好啊 不要看那么复杂的！！！
+    *****************************/
+    int* pTest = new int (10);
+    std::shared_ptr<int> aTest(pTest);
+
+    if (aTest.get() == pTest)
+        std::cout << "a and p point to the same location\n";
+
+    // three ways of accessing the same address:
+    std::cout << *aTest.get() << "\n";
+    std::cout << *aTest << "\n";
+    std::cout << *pTest << "\n";
+    
+    shared_ptr<Test> t = make_shared<Test>(23);
+    cout << t->val <<endl;
+    cout << t.get()->val <<endl;
+    shared_ptr<Test> te = make_shared<Test>();
+    cout << te->val <<endl;
+    cout << te.get()->val <<endl;
+    
+
     uniqueTest1();
     uniqueTest2();
     // MyFunc return the loacl variable is ok,
@@ -209,7 +244,6 @@ int main()
     {
         return m_ptr;
     }
-
     T& operator* ()
     {
         return *m_ptr;
