@@ -1,0 +1,32 @@
+High performance URL blocking system on Single Host
+
+    - Input stream coming with URL request, the system will return FALSE if the URL is in the black list, or else return if the URL is reachable.
+
+    - The black list need to be updated from time to time.
+
+Clarify the requirement and brief your design of this system. 
+
+
+read write write write data
+slot slot slot slot
+
+group 
+
+- input data . 
+- storage/data structure for black list . --- unordered_set
+- Read/Write .multithread 
+
+
+20 ---  2
+ seq1 2 3 . ack 1 2 3
+ abc  (2 seconds) 
+ dcf 
+
+
+Multiple thread each tread has its own message queue
+Read write pointer lock on this queue
+
+How to design to avoid the lock
+Cache local to thread itself do the modification on its own
+Message queue circular buffer
+就是有点producer and consumer problem
