@@ -9,8 +9,12 @@ using namespace std;
 3. Allows support for thread-safe access to the object’s global state.
 4. Avoids polluting the global namespace.
 • You don’t want clients to be able to create new instances. This can be done by declaring the default constructor to be private, thus preventing the compiler from automatically creating it as public.
-• You want the singleton to be non-copyable, to enforce that a second instance cannot be created. As seen earlier, this can be done by declaring a private copy constructor and a private assignment operator.
-• You want to prevent clients from being able to delete the singleton instance. This can be done by declaring the destructor to be private. (Note, however, that some compilers, such as Borland 5.5 and Visual Studio 6, produce an error incorrectly if you try to declare a destructor as private.)
+• You want the singleton to be non-copyable, to enforce that a second instance cannot be created. 
+  As seen earlier, this can be done by declaring a private copy constructor and a private 
+  assignment operator.
+• You want to prevent clients from being able to delete the singleton instance. This can be done by 
+  declaring the destructor to be private. (Note, however, that some compilers, such as Borland 5.5   
+  Visual Studio 6, produce an error incorrectly if you try to declare a destructor as private.)
 • The GetInstance() method could return either a pointer or a reference to the singleton class. However, if you return a pointer, clients could potentially delete the object. You should therefore prefer returning a reference.
 *************************************************************************/
 
@@ -19,6 +23,8 @@ class Singleton
 {
 public:
     /*************************************************************************
+    Best !!!!!!!!!
+    
        这个应该最好 lazy init 同时return return reference not pointer
        clients could potentially delete the object. You should therefore 
        prefer returning a reference.
@@ -33,6 +39,7 @@ public:
         // If control enters the declaration concurrently 
         // while the variable is being initialized, 
         // the concurrent execution shall wait for completion of the initialization.
+        // called thread-safe funciton local static!!!!!
         // 在多线程同时调用的情况下static只会被初始化一次。
         // 也就是说，对于一个符合这个要求的C++11编译器来说，只需要基本结构就可以了。不需要lock
         // 也就是这个其实不是一定需要！！！！！！！！！！！！！
