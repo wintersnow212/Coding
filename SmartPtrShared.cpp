@@ -159,6 +159,7 @@ Simple implementation: 不用使用refCnt struct 而是使用int* m_refCnt就可
 特别注意这里是int* 不能是int!!!!!!
 因为object 会在class 释放的时候自动被释放！！！！
 **************************************************************************/
+// 这里一定是template啊 不然 smart pointer 不知道是construct什么类型的object
 template<typename T>
 class SharedPtrSp
 {
@@ -198,6 +199,7 @@ public:
     // Copy constructor 我们这里就是希望shadow copy!!!!
     SharedPtrSp (const SharedPtrSp& other)
     {
+        // 这里就是很简单的他们都指向同一个resource
         m_ptr = other.m_ptr;
         // 这个是错误的！！！！因为这样你的other 就没有的到update!!!
         // const 没有关系我又没有改变m_refCnt的指向我只改变了里面的值
@@ -261,6 +263,8 @@ public:
         : m_ptr(other.m_ptr)
         , m_refCnt(other.m_refCnt)
     {
+        // 千万记住 这里的move 不能delete！！！！ 因为这里是transfer ownership
+        // 这里不是delete memory!!!!!!!!!
         other.m_ptr = nullptr;
         other.m_refCnt = nullptr;
     }
