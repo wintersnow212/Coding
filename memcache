@@ -1,0 +1,101 @@
+Memcached  很重要
+
+淘汰机制是LRU
+
+https://dzone.com/articles/memcached-memory-allocation#targetText=Memcached%20uses%20a%20slab%20memory,blocks%20of%201MB%20in%20size.
+
+https://docs.oracle.com/cd/E17952_01/mysql-5.1-en/ha-memcached-using-memory.html
+
+
+https://holmeshe.me/understanding-memcached-source-code-I/
+
+
+https://blog.csdn.net/initphp/article/details/44888555
+
+
+
+
+Memory fragmentation
+https://en.wikipedia.org/wiki/Fragmentation_%28computing%29#Internal_fragmentation
+
+
+External fragmentation
+Total memory space is enough to satisfy a request or to reside a process in it, but it is not contiguous so it can not be used.
+ 
+Internal fragmentation
+Memory block assigned to process is bigger. Some portion of memory is left unused as it can not be used by another process.
+ 
+
+https://dzone.com/articles/memcached-memory-allocation#targetText=Memcached%20uses%20a%20slab%20memory,blocks%20of%201MB%20in%20size.
+
+https://medium.com/@SkyscannerEng/journey-to-the-centre-of-memcached-b239076e678a
+
+
+这两个中文的不错
+https://blog.csdn.net/initphp/article/details/44888555
+
+https://blog.csdn.net/jayxujia123/article/details/88544702
+
+ 
+
+Memory fragmentation哪来的就是无脑的malloc and free
+所以我们解决它就是不dynamic allocate 而是pre-allocate
+Slab allocator
+
+The main idea of the slab allocator is that a page should only store data structures of the same "type". This ticks all the boxes: each object in a page is the same size, so there's no external fragmentation
+
+Slab allocation reduces fragmentation caused by allocations and deallocation
+
+The primary goal of the slabs subsystem in memcached was to eliminate memory fragmentation issues totally by using fixed size memory chunks coming from a few predetermined size classes.
+
+
+The other reason that slabs reduce external fragmentation is that all objects in a slab are of the same type, so they have the same lifetime distribution.*
+
+To avoid memory fragmentation, Memcached divides its memory into several slabs. Each slab stores items with size in a specific range (e.g., < 128B, 128-256B, etc.) 
+
+
+这些memory 都是pre-allocated的！！
+
+With slab allocation, a cache for a certain type or size of data object has a number of pre-allocated "slabs" of memory; within each slab there are memory chunks of fixed size suitable for the objects.[4] The slab allocator keeps track of these chunks, so that when it receives a request to allocate memory for a data object of a certain type, usually it can satisfy the request with a free slot (chunk) from an existing slab. 
+When the allocator is asked to free the object's memory, it just adds the slot to the containing slab's list of free (unused) slots. The next call to create an object of the same type (or allocate memory of the same size) will return that memory slot (or some other free slot) and remove it from the list of free slots. 
+This process eliminates the need to search for suitable memory space and greatly alleviates memory fragmentation. In this context, a slab is one or more contiguous pages in the memory containing pre-allocated memory chunks.
+
+同时上面也说到了 只是放到free list 而不是真正的free
+
+具体实现
+
+memcached声明了一个slabclass_t结构体类型，并且定义了一个slabclass_t类型数组slabclass(是一个全局变量)。可以把数组的每一个元素称为一个slab分配器。一个slab分配器能分配的内存大小是固定的，不同的slab分配的内存大小是不同的。下面借一幅经典的图来说明：
+
+ 
+
+        
+
+slab 内存分配单位
+1. Memcached的内存分配是以slab为单位的。默认情况下，每个slab大小为1M。
+
+2. slabclass数组初始化的时候，每个slabclass_t都会分配一个1M大小的slab。
+
+3. 当某个slabclass_t结构上的内存不够的时候（freelist空闲列表为空），则会分配一个slab给这个slabclass_t结构。
+
+4. 一旦slab分配后，不可回收。
+
+5. slab会被切分为N个小的内存块，这个小的内存块的大小取决于slabclass_t结构上的size的大小。例如slabclass[0]上的size为103，则每个小的内存块大小为103byte。
+
+6. 这些被切割的小的内存块，主要用来存储item。但是，存储的item，可能会比切割出来的内存块会小。因为这是为了防止内存碎片，虽然有一些内存的浪费。
+
+slabclass和slab、item以及free list之间的关系：
+ 
+通过item的size来选择slab_class的数据存储空间：
+
+
+ 
+缺点
+
+Slab Allocator的缺点
+Slab Allocator解决了当初的内存碎片问题，但新的机制也给memcached带来了新的问题。这个问题就是，由于分配的是特定长度的内存，因此无法有效利用分配的内存。例如，将100字节的数据缓存到128字节的chunk中，剩余的28字节就浪费了
+ 
+The most efficient way to reduce the waste is to use a list of size classes that closely matches (if that's at all possible) common sizes of objects that the clients of this particular installation of memcached are likely to store.
+ 
+就是说，如果预先知道客户端发送的数据的公用大小，或者仅缓存大小相同的数据的情况下，只要使用适合数据大小的组的列表，就可以减少浪费。但是很遗憾，现在还不能进行任何调优，只能期待以后的版本了。但是，我们可以调节slab class的大小的差别
+
+
