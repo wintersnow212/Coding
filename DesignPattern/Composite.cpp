@@ -7,6 +7,7 @@ public:
     //friend class Express;
     int getUse(void) const;
     void setUse(int);
+    
     friend ostream& operator<<(ostream& os,const ExpressNode& ExprNode)//(1)输出表达式自身
     {
         ExprNode.print(os);
@@ -39,20 +40,23 @@ void ExpressNode::setUse(int use1)
 class Express
 {
 public:
-    Express(int);//ValueNode(int) Express(3)
-    Express(char,const Express);//UnaryNode(char,int) Express('+',t,12)
-    Express(char,const Express,const Express);//BinaryNode(char,int,int) Express('+',3,4)
+    //ValueNode(int) Express(3)
+    Express(int);
+    //UnaryNode(char,int) Express('+',t,12)
+    Express(char,const Express);
+    //BinaryNode(char,int,int) Express('+',3,4)
+    Express(char,const Express&, const Express&);
     Express(const Express&);
     Express& operator=(const Express&);
     ~Express(void);
     friend ostream& operator<<(ostream& os, const Express& e)
     {
-        os << *(e.p);
+        os << *(e.pExpressNode);
         return os;
     }
     int eval() const;
 private:
-    ExpressNode* p;//具体的功能由这个类实现，这个类派生了各种各样的表达式
+    ExpressNode* pExpressNode;//具体的功能由这个类实现，这个类派生了各种各样的表达式
 };
 
 class ValueNode : public ExpressNode
@@ -92,7 +96,7 @@ class UnaryNode : public ExpressNode
 public:
     //friend class Express;
     UnaryNode(void);
-    UnaryNode(char c,class Express left1);
+    UnaryNode(char c, class Express left1);
     ~UnaryNode(void);
 private:
     void print(ostream& os) const;
@@ -127,7 +131,7 @@ class BinaryNode : public ExpressNode
 public:
     //friend class Express;
     BinaryNode(void);
-    BinaryNode(char,class Express,class Express);
+    BinaryNode(char, const Express& , const Express&);
     ~BinaryNode(void);
 private:
     void print(ostream&) const;
@@ -137,8 +141,10 @@ private:
     class Express right;
 };
 
-BinaryNode::BinaryNode(char c,class Express left1,class Express right1)
-:opend(c),left(left1),right(right1)
+BinaryNode::BinaryNode(char c, const Express& left1, const Express& right1)
+        : opend(c)
+        , left(left1)
+        , right(right1)
 {
 }
  
@@ -166,56 +172,61 @@ int BinaryNode::eval() const
 
 Express::Express(int a)
 {
-    p = new ValueNode(a);
+    pExpressNode = new ValueNode(a);
 }
  
 Express::Express(char c, const Express e)
 {
-    p= new UnaryNode(c,e);
+    pExpressNode = new UnaryNode(c,e);
 }
- 
-Express::Express(char c, const Express el,
-                 const Express er)//BinaryNode(char,int,int)
+
+//BinaryNode(char,int,int)
+// 这里应该是体现composite的地方 
+Express::Express(char c, const Express& el, const Express& er) 
 {
-    p = new BinaryNode(c,el,er);
+    pExpressNode = new BinaryNode(c,el,er);
 }
  
 Express::Express(const Express& e1)
 {
-    p = e1.p;
-    p->setUse(p->getUse()+1);
+    pExpressNode = e1.pExpressNode;
+    pExpressNode->setUse(pExpressNode->getUse()+1);
 }
  
 Express& Express::operator=(const Express& e1)
 {
-    (e1.p)->setUse((e1.p)->getUse()+1);
-    p->setUse(p->getUse()-1);
-    if(p->getUse()==0)
-        delete p;
-    p=e1.p;
+    (e1.pExpressNode)->setUse((e1.pExpressNode)->getUse()+1);
+    
+    pExpressNode->setUse(pExpressNode->getUse()-1);
+    
+    if(pExpressNode->getUse()==0)
+        delete pExpressNode;
+    
+    pExpressNode= e1.pExpressNode;
     return *this;
 }
  
 Express::~Express(void)
 {
-    p->setUse(p->getUse()-1);
-    if(p->getUse()==0)
-        delete p;
+    pExpressNode->setUse(pExpressNode->getUse()-1);
+    if(pExpressNode->getUse()==0)
+        delete pExpressNode;
 }
  
 int Express::eval() const
 {
-    return p->eval();
+    // 这里体现了polymoprihm的关键！！！！！！！！！
+    return pExpressNode->eval();
 }
 
 int main()
 {
     Express t = Express(3);
-    t=Express('+',t,12);
-    cout<<t<<" = "<<t.eval()<<endl;
-    Express y=Express('-',4);
-    cout<<y<<" = "<<y.eval()<<endl;
-    Express t1=Express('*',Express('-',5),Express('+',3,4));
+    t = Express('+',t,12);
+    cout<< t <<" = "<<t.eval()<<endl;
+    Express y = Express('-',4);
+    cout<<y<<" = "<< y.eval()<<endl;
+    Express t1= Express('*',Express('-',5),Express('+',3,4));
     cout<<t1<<" = "<<t1.eval()<<endl;
     t=Express('*',t1,t1);
     Express t2=Express('*',t,t);
