@@ -43,7 +43,7 @@ public:
         // 在多线程同时调用的情况下static只会被初始化一次。
         // 也就是说，对于一个符合这个要求的C++11编译器来说，只需要基本结构就可以了。不需要lock
         // 也就是这个其实不是一定需要！！！！！！！！！！！！！
-        unique_lock<mutex> l(m);
+        // unique_lock<mutex> l(m);
         // Lazy initialization 只有在第一次使用的时候才需要初始化出一个singleton对象
         // 同时这里的static 1) end of program保证了会被destory 2) 一个class 只有一个！！！
         static Singleton instance;
