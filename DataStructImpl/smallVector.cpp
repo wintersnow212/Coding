@@ -3,7 +3,11 @@
 #include <unordered_map>
 using namespace std;
 
-//简单解释一下为什么malloc/free是效率杀手。以简化的tcmalloc为例，一次malloc至少需要访问一次thread cache（无锁），然后有可能访问central cache（有锁）。增加的指令、跳转和cache miss已经不少，然而，central cache的锁可能造成的contention根本就是几个数量级的慢（ns vs. ms）。更要命的是，生产系统里，小的string特别多，大大增加了central cache的压力和contention的几率，影响所有线程的效率（都是us甚至ms级别的）。小测试无法捕捉到这种问题
+//简单解释一下为什么malloc/free是效率杀手。以简化的tcmalloc为例，一次malloc至少需要访问一次thread cache（无锁），
+//然后有可能访问central cache（有锁）。
+//增加的指令、跳转和cache miss已经不少，然而，central cache的锁可能造成的contention根本就是几个数量级的慢（ns vs. ms）。
+//更要命的是，生产系统里，小的string特别多，大大增加了central cache的压力和contention的几率，影响所有线程的效率（都是us甚至ms级别的）。
+//小测试无法捕捉到这种问题
 
 
 // Implement a space efficient integer vector
