@@ -9,6 +9,8 @@ using namespace std;
 //更要命的是，生产系统里，小的string特别多，大大增加了central cache的压力和contention的几率，影响所有线程的效率（都是us甚至ms级别的）。
 //小测试无法捕捉到这种问题
 
+// https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
+// Facebook small vector optimization !!!!!!!!
 
 // Implement a space efficient integer vector
 // Common Case:
