@@ -8,6 +8,11 @@ using namespace std;
 //增加的指令、跳转和cache miss已经不少，然而，central cache的锁可能造成的contention根本就是几个数量级的慢（ns vs. ms）。
 //更要命的是，生产系统里，小的string特别多，大大增加了central cache的压力和contention的几率，影响所有线程的效率（都是us甚至ms级别的）。
 //小测试无法捕捉到这种问题
+/*
+Developers noticed that and now effectively all std::string implementations implement the so called “small string optimization”. 
+Each string object contains a small inline buffer that will hold the data, if it fits. It’ll allocate only if the data can’t fit that buffer.
+As most strings in practice are small – they’ll save an allocation and improve cache locality very often.
+*/
 
 // https://github.com/facebook/folly/blob/master/folly/docs/FBVector.md
 // Facebook small vector optimization !!!!!!!!
