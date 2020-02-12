@@ -4,3 +4,7 @@ https://www.zhihu.com/question/25527491
 https://zhuanlan.zhihu.com/p/51855842
 
 efficient c++ programing techniques book
+
+
+http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/
+http://dmitrysoshnikov.com/compilers/writing-a-pool-allocator/
