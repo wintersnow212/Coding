@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 using namespace std;
+//https://lokiastari.com/blog/2015/01/15/c-plus-plus-by-example-smart-pointer-part-ii/index.html
 /*********************************************************************
 要很好的理解smart pointer的意义:
 Give the ownership of heap allocated memory to stack varible,so that when it is out of scope, it will be freed autonmatically
@@ -113,7 +114,8 @@ public:
         {
             return *this;
         }
-
+        
+        // 关键错误！！！！！！
         if (m_ptr != nullptr)
         {
             m_refCnt->Decrement();
@@ -234,6 +236,8 @@ public:
             return *this;
         }
         
+        
+        //
         if (m_ptr != nullptr)
         {
             (*m_refCnt)--;
