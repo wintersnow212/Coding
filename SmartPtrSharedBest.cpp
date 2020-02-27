@@ -170,6 +170,7 @@ public:
     // Make sure it is noexcept
     void swap(SharedPtrSp& other) noexcept
     {
+        // 这里的swap 不能是swap(other, *this) 而是分别swap!!!!!!
         std::swap(m_ptr,  other.m_ptr);
         std::swap(m_refCnt, other.m_refCnt);
     }
