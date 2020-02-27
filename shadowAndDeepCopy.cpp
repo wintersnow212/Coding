@@ -8,7 +8,13 @@ using namespace std;
 class MyString
 { 
 public:
-    MyString(const char* source ="")
+    MyString()
+        : m_data(nullptr)
+        , m_length(0)
+    {
+        
+    }
+    MyString(const char* source)
     {
         assert(source != nullptr); // make sure source isn't a null string
  
@@ -16,15 +22,18 @@ public:
         // Plus one character for a terminator
         m_length = std::strlen(source) + 1;
         
+        // 这里必须要class 自己hold memory 不然要是shadow copy的pointer被free了呢
         // Allocate a buffer equal to this length
         m_data = new char[m_length];
         
-        // Copy the parameter string into our internal buffer
-        for (int i=0; i < m_length; ++i)
-            m_data[i] = source[i];
+//         // Copy the parameter string into our internal buffer
+//         for (int i=0; i < m_length; ++i)
+//             m_data[i] = source[i];
     
-        // Make sure the string is terminated
-        m_data[m_length-1] = '\0';
+//         // Make sure the string is terminated
+//         m_data[m_length-1] = '\0';
+        //strcpy(m_data, source);
+        memcpy(m_data, source, sizeof(char) * m_length);
     }
     
     
@@ -35,7 +44,6 @@ public:
     And assignment operator is called when an already initialized object is 
     assigned a new value from another existing object.
     
-     /*
     三种情况下会调用copy constructor
     1.    A newly-created object is initialized to the value of an existing object.
     2.    An object is passed to a function as a non-reference object
@@ -49,8 +57,14 @@ public:
     */
     MyString(const MyString& source)
     {
-         m_length = source.m_length;
- 
+        m_length = source.m_length;
+        // copy assignment 才需要free
+        // if (m_data != nullptr)
+        // {
+        //     delete [] m_data;
+        //     m_data = nullptr;
+        // }
+            
         // m_data is a pointer, so we need to deep copy it if it is non-null
         if (source.m_data)
         {
@@ -58,8 +72,9 @@ public:
             m_data = new char[m_length];
 
             // do the copy
-            for (int i=0; i < m_length; ++i)
-                m_data[i] = source.m_data[i];
+            // for (int i=0; i < m_length; ++i)
+            //     m_data[i] = source.m_data[i];
+            strcpy(m_data, source.m_data);
         }
         else
         {
@@ -75,33 +90,26 @@ public:
         Return value:此时生成的是变量a的一个拷贝，即生成了一个临时变量，当这个变量使用完毕之后，变量就被销毁了，
         所以这种返回不能用作左值运算，如：set() = 5;这是不正确的。the return value of a function is an l-value if and 
         only if it is a reference (C++03)
-
     2.千万不能返回要被销毁的变量 比如局部变量
     如果非要
     如果非要返回一个局部变量的引用，可以new 类型(初值) 申请一个堆内存的临时变量，这样只要不delete释放，
     那么在程序退出之前内存就不会被释放，直到不再使用时便可delete掉.
-
     和copy construtor 的区别
     The purpose of the copy constructor and the assignment operator are almost equivalent -- both copy one object to another. 
     However, the copy constructor initializes new objects, 
     whereas the assignment operator replaces the contents of existing objects.
-
     a b; //constructor
     a c; //constructor
     b = c; //copy assignment
     c = a(b); //copy constructor, then copy assignment
-
     a* b = new a(); //constructor called
     a* c; //nothing is called
     c = b; //still nothing is called
     c = new a(*b); //copy constructor is called
-
     
     if a functions receives as argument, passed by value, an object of a class
     void foo(MyClass a);
     foo(a);
-
-
     When a function returns (by value) an object of the class
     MyClass foo ()
     {
@@ -120,8 +128,12 @@ public:
 
         // first we need to deallocate any value that this string is holding!
         // 这一步非常关键！！！！！
-        delete[] m_data;
-
+        if (m_data != nullptr)
+        {
+            delete[] m_data;
+            m_data = nullptr;
+        }
+        
         // because m_length is not a pointer, we can shallow copy it
         m_length = source.m_length;
 
@@ -132,8 +144,12 @@ public:
             m_data = new char[m_length];
 
             // do the copy
-            for (int i=0; i < m_length; ++i)
-                m_data[i] = source.m_data[i];
+            // ???? strcpy(s, src.s); ??? memcpy???
+            // for (int i=0; i < m_length; ++i)
+            //     m_data[i] = source.m_data[i];
+            // strlen: Returns the length of the given byte string not including null terminator;
+            memcpy(m_data, source.m_data, strlen(source.m_data) + 1);
+            //memcpy(m_data, source.m_data, sizeof(char) * m_length);
         }
         else
             m_data = nullptr;
@@ -151,7 +167,7 @@ public:
     int getLength() { return m_length; }
     
 private:
-    char *m_data;
+    char* m_data;
     int m_length;
 };
 
@@ -170,7 +186,6 @@ int main()
     
     MyString assign;
     assign = hello;
-    
     
     return 0;
 }
