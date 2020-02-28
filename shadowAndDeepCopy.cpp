@@ -27,9 +27,9 @@ public:
         // Do I need to add null terminator here??? No !!!
     }
 
-    /*****************************************************************************************************
+    /******************************************************************************
     Shadow copy
-    ******************************************************************************************************/
+ ******************************************************************************/
     // MyString(const MyString& other)
     //     : m_data(other.m_data)
     //     , m_len(other.m_len)
@@ -71,19 +71,21 @@ public:
         memcpy(m_data, other.m_data, sizeof(char) * m_len);
     }
 
-    /*****************************************************************************************************
+    /******************************************************************************
     Return by reference
-    /*
     1.可以作为左值的原因
-        Return value:此时生成的是变量a的一个拷贝，即生成了一个临时变量，当这个变量使用完毕之后，变量就被销毁了，
-        所以这种返回不能用作左值运算，如：set() = 5;这是不正确的。the return value of a function is an l-value if and 
-        only if it is a reference (C++03)
-    2.千万不能返回要被销毁的变量 比如局部变量
+      Return value:此时生成的是变量a的一个拷贝，即生成了一个临时变量，当这个变量使用完毕
+      之后，变量就被销毁了，所以这种返回不能用作左值运算，如：set() = 5;这是不正确的。the 
+      return value of a function is an l-value if and only if it is a reference 
+      (C++03)
+    2.千万不能返回要被销毁的变量的引用 比如局部变量
     如果非要
-    如果非要返回一个局部变量的引用，可以new 类型(初值) 申请一个堆内存的临时变量，这样只要不delete释放，
+    如果非要返回一个局部变量的引用，可以new 类型(初值) 申请一个堆内存的临时变量，这样只要不   
+    delete释放，
     那么在程序退出之前内存就不会被释放，直到不再使用时便可delete掉.
     和copy construtor 的区别
-    The purpose of the copy constructor and the assignment operator are almost equivalent -- both copy one object to another. 
+    The purpose of the copy constructor and the assignment operator are almost 
+    equivalent -- both copy one object to another. 
     However, the copy constructor initializes new objects, 
     whereas the assignment operator replaces the contents of existing objects.
     a b; //constructor
@@ -105,15 +107,24 @@ public:
         ....
         return temp; // copy constructor called
     }
-    *****************************************************************************************************/
+*******************************************************************************/
 
-    MyString& operator = (const MyString& other)
+//     MyString& operator = (const MyString& other)
+//     {
+//         cout << "Copy Assignment called" << endl;
+//         // Copy ans Swap idom
+//         MyString cpy = other;
+//         swap(m_data, cpy.m_data);
+//         swap(m_len, cpy.m_len);
+
+//         return *this;
+//     }
+    
+    MyString& operator = (MyString other)
     {
         cout << "Copy Assignment called" << endl;
-        // Copy ans Swap idom
-        MyString cpy = other;
-        swap(m_data, cpy.m_data);
-        swap(m_len, cpy.m_len);
+        swap(m_data, other.m_data);
+        swap(m_len, other.m_len);
 
         return *this;
     }
