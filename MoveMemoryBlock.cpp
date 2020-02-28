@@ -65,7 +65,24 @@ public:
         return *this;
     }
     
-    // Move constructor
+    // Move constructor. Unlike the default copy constructor, 
+    // the compiler does not provide a default move constructor
+    // 特别注意这里move使用的rValue reference  原因是要把temporary object(i.e. other)的        
+    // ownership transfer 给自己
+     // Move semantics works because it enables resources to be transferred from 
+    // temporary objects that cannot be referenced elsewhere in the program.
+    // A move constructor enables the resources owned by an rvalue object to 
+    // be moved into an lvalue without copying.
+    
+    // 实例：
+    // f ("foo");
+    // To see why, consider the first call to f() in the above example. 
+    // Here is what will happen: a temporary (rvalue) string will be initialized with 
+    // "foo" and then passed to f(). 
+    // f(), in turn, will create a copy of the passed temporary and,
+    // once it returns, the temporary will be destroyed.
+    // 你pass in lValue的时候只要用const& 就避免copy了呀
+    // 综上所述 提升的地方就在于当你是pass in temporart object的时候可以避免copy
     MemoryBlock (MemoryBlock&& other)
         :_length(other._length)
         ,_data(other._data)
