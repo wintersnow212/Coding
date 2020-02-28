@@ -1,6 +1,5 @@
 /*
 写一个sparse matrix的class，要求有set，get，add这几个function，我猜follow up会有写multiplication吧，
-但是我前面写的太慢并没有让我做......
 */
 #include <iostream>
 #include <utility>
@@ -86,6 +85,7 @@ public:
     }
     
     // Copy constructor
+    // 这里貌似不需要考虑shadow copy 和 deep copy
     SPMatrix (const SPMatrix& other)
     {
         m_row = other.m_row;
