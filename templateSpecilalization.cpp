@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
 // Function specialization can not be partial speciliazation
@@ -118,6 +119,41 @@ struct is_pointerChecker<T*>
     static constexpr bool value {true};
 };
 
+// https://www.hackerrank.com/challenges/cpp-class-template-specialization/problem
+template<typename T>
+struct Traits
+{
+    //static std::string name(int index) { return "unknown"; }
+};
+
+// 这是可以take input argument 的static function
+template <>
+struct Traits<Fruit> 
+{
+    static string name(int idx) {
+        switch (idx) {
+            case 0: return "apple";
+            case 1: return "orange";
+            case 2: return "pear";
+        }
+        return "unknown";
+    }    
+};
+
+template< >
+struct Traits<Color>
+{
+    static string name(int idx) {
+        switch (idx) 
+        {
+            case 0: return "red";
+            case 1: return "green";
+            case 2: return "orange";
+        }
+        return "unknown";
+    }
+};
+
 int main()
 {
     if (isInt<string>() == true)
@@ -158,6 +194,15 @@ int main()
     for (int count=11; count >= 0; --count)
         std::cout << intArray[count] << " ";
     std::cout << '\n';
+    
+    
+
+    for (int i=0; i!= 3; ++i) {
+        int index1; std::cin >> index1;
+        int index2; std::cin >> index2;
+        cout << Traits<Color>::name(index1) << " ";
+        cout << Traits<Fruit>::name(index2) << "\n";
+    }
  
 }
 
