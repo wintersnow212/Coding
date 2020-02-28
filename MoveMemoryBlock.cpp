@@ -4,6 +4,14 @@
 #include <cstring>
 using namespace std;
 
+
+/****************************************************************************************
+//https://docs.microsoft.com/en-us/cpp/cpp/move-constructors-and-move-assignment-operators-cpp?view=vs-2019
+//https://www.learncpp.com/cpp-tutorial/15-3-move-constructors-and-move-assignment/
+// 可能需要disable copy constructor
+// copy&&move construct 不用free 但是感觉copy assignment 和move assignment需要
+****************************************************************************************/
+
 template<typename T>
 class MemoryBlock
 {
