@@ -170,6 +170,8 @@ void MyVector<T>::grow()
 }
 
 /*
+vector 的push_back 是worst O(n);  average/amortized O(1)
+
 How long does it take to do a total of n push_back() operations, starting with an empty vector?
 Let k be the smallest integer such that n ≤ 2k. For the sake of simplicity, we'll do the analysis as if we were actually going to do 2k pushes.
 Let m be the current size() of the vector
