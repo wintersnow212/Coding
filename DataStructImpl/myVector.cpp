@@ -104,6 +104,12 @@ private:
     int idx;
 };
 
+/*
+1. Allocate a new block of memory that is some multiple of the container's current capacity. In most implementations, vector and string capacities grow by a factor of two each time. i.e. their capacity is doubled each time the container must be expanded.
+2. Copy all the elements from the container's old memory into its new memory.
+3. Destroy the objects in the old memory.
+4. Deallocate the old memory
+*/
 template<typename T>
 void MyVector<T>::grow()
 {
