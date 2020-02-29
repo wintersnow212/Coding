@@ -171,6 +171,14 @@ void MyVector<T>::grow()
 
 /*
 vector 的push_back 是worst O(n);  average/amortized O(1)
+http://faculty.cs.tamu.edu/klappi/csce411-f13/csce411-amortized2.pdf
+
+if i - 1  = 2^k for some k :
+Ci = 1 + 2^k
+Otherwise:
+Ci = 1
+
+Total cost  
 
 How long does it take to do a total of n push_back() operations, starting with an empty vector?
 Let k be the smallest integer such that n ≤ 2k. For the sake of simplicity, we'll do the analysis as if we were actually going to do 2k pushes.
@@ -186,8 +194,8 @@ Total effort is
 Total effort is O(2k+1).
 But we started with the statement that n=2k, so this is
 =O(2n)=O(n)
-So the true answer is that vector::push_back does have a worst case of O(n), but in special circumstances that cost may average (amortizes) to O(1) over a sequence of n calls.
-In fact, if you were to look at the required behavior for vector::push_back listed in the C++ language standard, you would find that the required O(1) behavior, is, indeed, a requirement for amortized time, not a requirement on the worst-case time.
+
+Average Cost : total/n --- O(1)
 */
 template<typename T>
 void MyVector<T>::push_back(const T& val)
