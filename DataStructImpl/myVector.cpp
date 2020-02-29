@@ -123,10 +123,41 @@ void MyVector<T>::grow()
     // originally empty and there is no memory to delete
     if (data != nullptr)
     {
-        // memcpy的单位是 byte!!!!
-        memcpy(newData, data, (idx+1) * sizeof(T));
-        //copy (data, data + idx + 1, newData);
+        /*
+        memcpy的单位是 byte!!!! 但是不能work with custom object
+        因为memcpy不会invoke copy constrctor
+        这样导致的问题就是 multiple objects will be referring to the same 
+        dynamically allocated memory, and more than one destructor will try to 
+        release it.
+        
+        The problem with using memcpy is that it bypasses copy constructors. 
+        This is OK only when your class is composed of primitives.
+
+        However, Pen class has non-primitive data members of type std::string.           These objects require a call of copy constructor to be copied. memcpy 
+        does not perform any calls to copy constructors, which leads to internal 
+        representations of std::string becoming shared, which in turn causes 
+        undefined behavior on destruction.
+
+        Copying with a loop, on the other hand, invokes a copy constructor, so 
+        your code runs without a problem.
+
+        C++ Standard Library provides a utility function for copying ranges     
+        called std::copy. Using this function avoids the problem that you see,
+        because it invokes copy constructors as needed.
+        */
+        //memcpy(newData, data, (idx+1) * sizeof(T));
+        copy (data, data + idx + 1, newData);
+        // 这里没有destrory old objcet
         delete [] data;
+        
+        // 最简单就可以直接使用for loop!!!!!
+        // for (int i = 0; i < idx + 1; ++i)
+        // {
+        //     newData[i] = data[i];
+        //     data[i].~T();
+        // }
+        
+        //delete [] data;
     }
     
     data = newData;
@@ -232,7 +263,7 @@ int main() {
         v3.pop_back();
         
     } catch (const char* msg) { 
-        cerr << msg <<endl; 
+        cout << msg <<endl; 
         return -1;
     }
     return 0;
