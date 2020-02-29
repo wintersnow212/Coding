@@ -165,18 +165,19 @@ int main() {
 //     arr[10] = 11; 
 //     printf("arr[10] is %d\n",arr[10]); 
     
-    char* pStr = nullptr;
-    Correct(pStr);
-    cout << pStr << endl;
-    free(pStr);
+    const char* pStr1 = nullptr;
+    Correct1(pStr1);
+    cout << pStr1 << endl;
+    
     char* pStr2 = nullptr;
     Correct2(&pStr2);
     cout << pStr2 << endl;
     free(pStr2);
-
-    const char* pStr3 = nullptr;
+    
+    char* pStr3 = nullptr;
     Correct3(pStr3);
     cout << pStr3 << endl;
+    free(pStr3);
     
     char* pStrWrong = nullptr;
     Wrong(pStrWrong);
