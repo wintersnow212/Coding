@@ -4,14 +4,37 @@
 #include <assert.h>
 using namespace std;
 
-// 错误1 这里一定要是pass by reference 
-// 或者是char** 因为不然pStr指向根本没有update; 
-// 因为没有指向malloc那块内存！！！！！！！
-void Correct(char*& pChar)
-{
-    pChar = (char*)malloc(1000);
+/* 
+1. 为什么要pass by reference
+   这里一定要是pass by reference 
+   或者是char** 因为不然pStr指向根本没有update; 因为没有指向malloc那块内存！！！
 
-    const char* pSource = "Hello， Tianyu";
+2. 为什么直接assign就可以了 不要allocate and strcpy
+   因为感觉字符串指针比较特别 不是local varaible 而是在read only memory
+   如果是字符串数组就不可以了 就是local variable 会被free 掉
+*/
+void Correct1(const char *& pChar)
+{
+    const char* pSource = "Tianyu Xia get offer";
+    pChar = pSource;
+}
+
+
+void Correct2(char** pChar)
+{
+    
+    const char* pSource = "Tianyu Xia get offer again";
+    *pChar = (char*)malloc((strlen(pSource) + 1) * sizeof(char));
+
+    // 错误2 这里要+1 因为strlen是不包括null termintor的
+    strncpy(*pChar, pSource, strlen(pSource) + 1);
+}
+
+void Correct3(char*& pChar)
+{
+    const char* pSource = "Tianyu Xia get offer again and again";
+
+    pChar = (char*)malloc((strlen(pSource) + 1) * sizeof(char));
 
     // size of pointer 只是4或者8 size of array才可以
     cout << sizeof(pSource) << endl;
@@ -21,23 +44,6 @@ void Correct(char*& pChar)
     // 错误2 这里要+1 因为strlen是不包括null termintor的
     strncpy(pChar, pSource, strlen(pSource) + 1);
     //pChar = pSource;
-}
-
-
-void Correct3(const char*& pChar)
-{
-    const char* pSource = "Hello， Tianyu";
-    pChar = pSource;
-}
-
-void Correct2(char** pChar)
-{
-    *pChar = (char*)malloc(1000);
-
-    const char* pSource = "Hello again, Tianyu";
-
-    // 错误2 这里要+1 因为strlen是不包括null termintor的
-    strncpy(*pChar, pSource, strlen(pSource) + 1);
 }
 
 
