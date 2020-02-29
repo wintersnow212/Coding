@@ -20,6 +20,14 @@ void Correct(char*& pChar)
 
     // 错误2 这里要+1 因为strlen是不包括null termintor的
     strncpy(pChar, pSource, strlen(pSource) + 1);
+    //pChar = pSource;
+}
+
+
+void Correct3(const char*& pChar)
+{
+    const char* pSource = "Hello， Tianyu";
+    pChar = pSource;
 }
 
 void Correct2(char** pChar)
@@ -160,6 +168,10 @@ int main() {
     cout << pStr2 << endl;
     free(pStr2);
 
+    const char* pStr3 = nullptr;
+    Correct3(pStr3);
+    cout << pStr3 << endl;
+    
     char* pStrWrong = nullptr;
     Wrong(pStrWrong);
     if (pStrWrong == nullptr)
@@ -239,15 +251,11 @@ int main() {
     
      /*
         The difference here is that
-
         char *s = "Hello world";
         will place "Hello world" in the read-only parts of the memory, and making s a pointer to that makes any writing operation on this memory illegal.
-
         While doing:
-
         char s[] = "Hello world";
         puts the literal string in read-only memory and copies the string to newly allocated memory on the stack. Thus making
-
         s[0] = 'J';
         legal.
     */
