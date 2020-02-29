@@ -24,13 +24,14 @@ void swapStr(char* s)
 // 2. 为什么直接assign就可以了 不要allocate and strcpy
 void test(const char*& p)
 {
-    // 这个不是local varibale 是存在在read only 的memory里面！！！！
+    // 字符串不是local varibale 是存在在read only 的memory里面！！！！
     const char* pStr = "Hello\n";
     // int len = strlen(pStr) + 1;
     // p = (char*)malloc(sizeof(char) * len);
     // //memcpy(p, pStr, sizeof(char) * len);
     // strcpy(p, pStr);
     p = pStr;
+    p = "Hello\n";
 }
 
 int main()
