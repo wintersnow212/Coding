@@ -48,18 +48,18 @@ public:
         }
         要特别注意啊 上面和下面两个的条件是相反的！！！！！！
         wait(lk, f)    
-        */
-        
-        // Write 必须是no one writer and no one read!!!!
-        //writerCV.wait(lock, bind(&RWLock::noWriteAndNoRead, this));
-        /* 等价于
+        等价于
          while (noWriteAndNoRead() == false)
         {
              writerQ.wait(lock);
         }
-        看到没有 两个的判断条件是相反的！！！！！
+        看到没有 两个的判断条件是相反的！！！！！下面是表示要meet那个条件
         */
+        // Write 必须是no one writer and no one read!!!! 
+        // lamdba的写法
         writerCV.wait(lock, [this](){return noWriteAndNoRead() == true;});
+        // Bind 的写法
+        //writerCV.wait(lock, bind(&RWLock::noWriteAndNoRead, this));
         waiting_writers--;
         ++active_writers;
     }
@@ -78,9 +78,6 @@ public:
             readerCV.notify_all();
         }
     }
-    
-    
-    
 private:
     //那Write-preferring的RW Lock怎麼改呢 很簡單 就改變reader做事的condition即可
 
