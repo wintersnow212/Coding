@@ -7,6 +7,21 @@
 #include <functional>
 using namespace std;
 
+/*
+Reader lock acquire :
+    1. no active writers
+    2. 如果是writing preferred的话 还要考虑no wating writers
+
+Write lock acquire:
+    必须要是no active 和 no active write
+
+Reader lock release:
+    貌似直接是很简单的writerCv.notify_one
+Write lock release:
+    稍微复杂一点 需要判断waiting_writers
+    同时 write lock是notify all
+    read lock 是notify one
+*/
 class RWLock 
 {
 public:
