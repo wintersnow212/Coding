@@ -66,8 +66,8 @@ struct BoundedBuffer {
     std::mutex mu;
 
     // 这里conditional varaible 有两个！！！
-    std::condition_variable not_full;
-    std::condition_variable not_empty;
+    std::condition_variable full;
+    std::condition_variable empty;
 
     BoundedBuffer(int capacity) 
         : capacity(capacity)
@@ -87,7 +87,7 @@ struct BoundedBuffer {
 
         while (count == capacity)
         {
-            not_full.wait(lock);
+            full.wait(lock);
         }
         // capture list 里面的this还不能少 不然count不知道哪来
         //not_full.wait(l, [this](){return count != capacity;});
@@ -97,7 +97,7 @@ struct BoundedBuffer {
         ++count;
 
         lock.unlock();
-        not_empty.notify_one();
+        empty.notify_one();
     }
     
     int pop(){
@@ -120,7 +120,7 @@ struct BoundedBuffer {
           4. 在出function scope destory lock object的时候 If the object currently owns a lock 
              on the managed mutex object,its unlock member is called before destroying object.
           */
-            not_empty.wait(lock);
+            empty.wait(lock);
         }
         //not_empty.wait(l, [this](){return count != 0; });
 
@@ -139,7 +139,7 @@ struct BoundedBuffer {
       */
   
         lock.unlock();
-        not_full.notify_one();
+        full.notify_one();
 
         return result;
     }
@@ -196,3 +196,4 @@ int main(){
 
     return 0;
 }
+
