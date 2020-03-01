@@ -1,160 +1,60 @@
-#include <iostream>
-#include <vector>
-#include <list>
-#include <atomic>
-#include <utility>
-#include <shared_mutex>
-#include <mutex>
-#include <thread>
-using namespace std;
-
-template<int SIZE>
-class MyHashMap {
+class LRUCache {
 public:
-    /** Initialize your data structure here. */
-    MyHashMap() 
-    {
-        mSize = SIZE;
-        vec.resize(SIZE);
-        // 这里的resize 只会初始化为nullptr吧
-        //mutexs.resize(SIZE);
-        // 如果必须要用push_back 或者 emplace back来初始化 此时用reserve更好！！！！
-        mutexs.reserve(SIZE);
-        for (int i = 0; i < SIZE; ++i)
-        {
-            mutexs.emplace_back(make_unique<shared_mutex>());
-        }
+    LRUCache(int capacity) {
+        cap = capacity;
     }
     
-    MyHashMap(int size)
-        : mSize(size)
-    {
-        vec.resize(size);
-        //mutexs.resize(size);
-        mutexs.reserve(SIZE);
-        for (int i = 0; i < SIZE; ++i)
-        {
-            mutexs.emplace_back(make_unique<shared_mutex>());
-        }
-    }
-    
-    /** value will always be non-negative. */
-    void insert(int key, int value) {
-        int hashCode = key % mSize;
-        if (mutexs[hashCode] == nullptr)
-        {
-            cout << "It is nullptr" << endl;
-        }
-        unique_lock<shared_mutex> wLock(*mutexs[hashCode]);
-        //unique_lock<shared_mutex> wLock(mutexsArr[hashCode]);
-        auto& list = buckets[hashCode];
+    int get(int key) {
+        if (keyToIt.find(key) == keyToIt.end())
+            return -1;
         
-        for (auto& l : list)
+        unique_lock<mutex> lock(*keyToIt[key]->mu);
+        int ret = keyToIt[key]->val;
+        
+        m_list.splice(m_list.begin(), m_list, keyToIt[key]);
+        
+        return ret;
+    }
+    
+    void put(int key, int value) 
+    {
+        if (keyToIt.find(key) != keyToIt.end())
         {
-            if (l.first == key)
+            unique_lock<mutex> lock(*keyToIt[key]->mu);
+            keyToIt[key]->val = value;
+            m_list.splice(m_list.begin(), m_list, keyToIt[key]);
+        }
+        else
+        {
+            if (m_list.size() == cap)
             {
-                l.second = value;
-                return;
+                unique_lock<mutex> lock(*m_list.back().mu);
+                int delKey = m_list.back().key;
+                keyToIt.erase(delKey);
+                m_list.pop_back();
             }
+            
+            m_list.push_front({key, value});
+            keyToIt[key] = m_list.begin();
+            
         }
-        
-        list.push_back({key, value});
-    }
-    
-    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
-    int find(int key) 
-    {
-        atomic<int> hashCode = key % mSize;
-        if (mutexs[hashCode] == nullptr)
-        {
-            cout << "It is nullptr" << endl;
-        }
-        shared_lock<shared_mutex> rLock(*mutexs[hashCode]);
-        //shared_lock<shared_mutex> rLock(mutexsArr[hashCode]);
-        auto list = buckets[hashCode];
-        for (auto& l : list)
-        {
-            if (l.first == key)
-                return l.second;
-        }
-        
-        return -1;
-    }
-    
-    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
-    void erase(int key) {
-        int hashCode = key % mSize;
-        unique_lock<shared_mutex> wLock(*mutexs[hashCode]);
-        //unique_lock<shared_mutex> wLock(mutexsArr[hashCode]);
-        auto& list = buckets[hashCode];
-        // 根本就不用这么复杂的 连function arg type pair<int, int>都不要！！！
-        // remove_if(bucket[hashIdx].begin(), bucket[hashIdx].end(), [key](pair<int, int> node){return node.first == key;});
-        //list.remove_if([key](pair<int, int> l) { return l.first == key; });
-        list.remove_if([key](auto l) { return l.first == key; });
     }
 private:
-    int mSize;
-    // 注意这里是key 和 value的 pair !!!!
-    vector<list<pair<int, int>>> vec;
-    //vector<shared_mutex> mutexs;
-    // 这个vector 要求element是movable的所以我们不能直接存放mutex
-    vector<unique_ptr<shared_mutex>> mutexs;
-    
-    
-    // 这样设计的不好在于 我们不能rehashing了？？？？？
-    list<pair<int, int>> buckets[SIZE];
-    // 每个bucket都有一个read write lock
-    shared_mutex mutexsArr[SIZE];
+    // Key to value
+    //typedef pair<int, int> Node;
+    struct Node
+    {
+        Node(int k = 0, int v = 0)
+        {
+            key = k;
+            val = v;
+            mu = make_unique<mutex>();
+        }
+        int key;
+        int val;
+        unique_ptr<mutex> mu;
+    };
+    list<Node> m_list;
+    unordered_map<int, list<Node>::iterator> keyToIt;
+    int cap;
 };
-
-// To execute C++, please define "int main()"
-int main() {
-    vector<shared_mutex*> mutexs;
-    mutexs.resize(10);
-    MyHashMap<1000> myHashTable;
-    vector<int> keys = {1, 2, 12, 3, 4};
-    vector<int> vals = {100, 102, 112, 103, 104};
-    vector<int> targets = {12, 2, 23, 3, 4};
-    auto insert = [&] () {
-                    for (int i = 0; i < keys.size(); ++i)
-                    {
-                        myHashTable.insert(keys[i], vals[i]);
-                    }
-                    
-                  };
-    
-    auto find = [&targets, &myHashTable]()
-                {
-                    for (int k : targets)
-                    {
-                        if (myHashTable.find(k) == -1)
-                        {
-                            cout << "not found" << endl;
-                        }
-                        else
-                        {
-                            cout << "find " << k << " is  " << myHashTable.find(k) << endl;
-                        }
-                    } 
-                };
-    
-    thread reader(find);
-    thread writer(insert);
-    thread reader2(find);
-    writer.join();
-    reader.join();
-    reader2.join();
-    // myHashTable.insert(1, 100);
-    // myHashTable.insert(2, 102);
-    // myHashTable.insert(12, 112);
-    // myHashTable.insert(3, 103);
-    // myHashTable.insert(4, 104);
-    // cout << myHashTable.find(12) << endl;
-    // myHashTable.erase(12);
-    // cout << myHashTable.find(12) << endl;
-    // cout << myHashTable.find(3) << endl;
-    // myHashTable.insert(3, 123);
-    // cout << myHashTable.find(3) << endl;
-  
-    return 0;
-}
