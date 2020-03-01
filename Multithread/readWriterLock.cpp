@@ -16,7 +16,7 @@ Write lock acquire:
     必须要是no active 和 no active write
 
 Reader lock release:
-    应该要判断activeReader吧
+    应该要判断activeReader吧??????
     貌似直接是很简单的writerCv.notify_one
 Write lock release:
     稍微复杂一点 需要判断waiting_writers
