@@ -4,14 +4,37 @@
 #include <assert.h>
 using namespace std;
 
-// 错误1 这里一定要是pass by reference 
-// 或者是char** 因为不然pStr指向根本没有update; 
-// 因为没有指向malloc那块内存！！！！！！！
-void Correct(char*& pChar)
-{
-    pChar = (char*)malloc(1000);
+/* 
+1. 为什么要pass by reference
+   这里一定要是pass by reference 
+   或者是char** 因为不然pStr指向根本没有update; 因为没有指向malloc那块内存！！！
 
-    const char* pSource = "Hello， Tianyu";
+2. 为什么直接assign就可以了 不要allocate and strcpy
+   因为感觉字符串指针比较特别 不是local varaible 而是在read only memory
+   如果是字符串数组就不可以了 就是local variable 会被free 掉
+*/
+void Correct1(const char *& pChar)
+{
+    const char* pSource = "Tianyu Xia get offer";
+    pChar = pSource;
+}
+
+
+void Correct2(char** pChar)
+{
+    
+    const char* pSource = "Tianyu Xia get offer again";
+    *pChar = (char*)malloc((strlen(pSource) + 1) * sizeof(char));
+
+    // 错误2 这里要+1 因为strlen是不包括null termintor的
+    strncpy(*pChar, pSource, strlen(pSource) + 1);
+}
+
+void Correct3(char*& pChar)
+{
+    const char* pSource = "Tianyu Xia get offer again and again";
+
+    pChar = (char*)malloc((strlen(pSource) + 1) * sizeof(char));
 
     // size of pointer 只是4或者8 size of array才可以
     cout << sizeof(pSource) << endl;
@@ -20,16 +43,7 @@ void Correct(char*& pChar)
 
     // 错误2 这里要+1 因为strlen是不包括null termintor的
     strncpy(pChar, pSource, strlen(pSource) + 1);
-}
-
-void Correct2(char** pChar)
-{
-    *pChar = (char*)malloc(1000);
-
-    const char* pSource = "Hello again, Tianyu";
-
-    // 错误2 这里要+1 因为strlen是不包括null termintor的
-    strncpy(*pChar, pSource, strlen(pSource) + 1);
+    //pChar = pSource;
 }
 
 
@@ -151,15 +165,20 @@ int main() {
 //     arr[10] = 11; 
 //     printf("arr[10] is %d\n",arr[10]); 
     
-    char* pStr = nullptr;
-    Correct(pStr);
-    cout << pStr << endl;
-    free(pStr);
+    const char* pStr1 = nullptr;
+    Correct1(pStr1);
+    cout << pStr1 << endl;
+    
     char* pStr2 = nullptr;
     Correct2(&pStr2);
     cout << pStr2 << endl;
     free(pStr2);
-
+    
+    char* pStr3 = nullptr;
+    Correct3(pStr3);
+    cout << pStr3 << endl;
+    free(pStr3);
+    
     char* pStrWrong = nullptr;
     Wrong(pStrWrong);
     if (pStrWrong == nullptr)
@@ -239,15 +258,11 @@ int main() {
     
      /*
         The difference here is that
-
         char *s = "Hello world";
         will place "Hello world" in the read-only parts of the memory, and making s a pointer to that makes any writing operation on this memory illegal.
-
         While doing:
-
         char s[] = "Hello world";
         puts the literal string in read-only memory and copies the string to newly allocated memory on the stack. Thus making
-
         s[0] = 'J';
         legal.
     */

@@ -6,11 +6,19 @@
 
 using namespace std;
  
-template <typename Stream> 
+template <typename StreamType> 
 class SyncStream 
 {
 public:
-    SyncStream(Stream &stream) : stream_(&stream) 
+    /*
+     这里 stream 是不能copy的
+     error: use of deleted function 
+     ‘std::basic_ostream<_CharT, _Traits>::basic_ostream(const     
+     std::basic_ostream<_CharT, _Traits>&) [with _CharT = char; _Traits =    
+     std::char_traits<char>]’
+     SyncStream(Stream &stream) : stream_(stream)
+    */
+    SyncStream(StreamType &stream) : stream_(&stream) 
     { 
         mutex_.lock(); 
     }
@@ -32,18 +40,18 @@ public:
 private:
     // 这里是static member 要在类外初始化
     static std::mutex mutex_;
-    Stream *stream_;
+    StreamType* stream_;
 };
 
 
 // template <typename Stream> std::mutex-----type
 // SyncStream<Stream> ---- 类名
-template <typename Stream> std::mutex SyncStream<Stream>::mutex_;
+template <typename StreamType> std::mutex SyncStream<StreamType>::mutex_;
  
-template <typename Stream> 
-SyncStream<Stream> synchronized(Stream &stream) 
+template <typename StreamType> 
+SyncStream<StreamType> synchronized(StreamType &stream) 
 {
-    return SyncStream<Stream>(stream);
+    return SyncStream<StreamType>(stream);
 }
  
 template<int cap>
@@ -51,11 +59,11 @@ struct BoundedBuffer {
     int* buffer;
     int capacity;
 
-    int front;
-    int rear;
+    int wrt;
+    int rd;
     int count;
 
-    std::mutex _mutex;
+    std::mutex mu;
 
     // 这里conditional varaible 有两个！！！
     std::condition_variable not_full;
@@ -63,8 +71,8 @@ struct BoundedBuffer {
 
     BoundedBuffer(int capacity) 
         : capacity(capacity)
-        , front(0)
-        , rear(0)
+        , wrt(0)
+        , rd(0)
         , count(0) 
     {
         buffer = new int[capacity];
@@ -75,27 +83,27 @@ struct BoundedBuffer {
     }
 
     void push(int data){
-        std::unique_lock<std::mutex> l(_mutex);
+        std::unique_lock<std::mutex> lock(mu);
 
         while (count == capacity)
         {
-            not_full.wait(l);
+            not_full.wait(lock);
         }
         // capture list 里面的this还不能少 不然count不知道哪来
         //not_full.wait(l, [this](){return count != capacity;});
        
-        buffer[rear] = data;
-        rear = (rear + 1) % capacity;
+        buffer[wrt] = data;
+        wrt = (wrt + 1) % capacity;
         ++count;
 
-        l.unlock();
+        lock.unlock();
         not_empty.notify_one();
     }
     
     int pop(){
     
         // 所有的lock都是build around the underlying  mutex
-        std::unique_lock<std::mutex> l(_mutex);
+        std::unique_lock<std::mutex> lock(mu);
         // 这里用while loop 而不是if 也解决了spurious wakeup issue
         // spurious wakeup : a thread might be awoken from its waiting state even though no 
         // thread signaled the condition variable
@@ -112,12 +120,12 @@ struct BoundedBuffer {
           4. 在出function scope destory lock object的时候 If the object currently owns a lock 
              on the managed mutex object,its unlock member is called before destroying object.
           */
-            not_empty.wait(l);
+            not_empty.wait(lock);
         }
         //not_empty.wait(l, [this](){return count != 0; });
 
-        int result = buffer[front];
-        front = (front + 1) % capacity;
+        int result = buffer[rd];
+        rd = (rd + 1) % capacity;
         --count;
         /* why the “pop”s don’t need “mlock.unlock();
           All unlocking is taken care of by the condition_variable’s wait function and by the unique_lock’s destructor.
@@ -130,7 +138,7 @@ struct BoundedBuffer {
         也就是如果不manually unlock的话 wait thread 在被notify后准备re-acquire lock时会被迫等待！！
       */
   
-        l.unlock();
+        lock.unlock();
         not_full.notify_one();
 
         return result;
@@ -144,14 +152,13 @@ struct BoundedBuffer {
 
 //void consumer(int id, BoundedBuffer& buffer){
 void consumer(int id, BoundedBuffer<200>& buffer){
-    //for(int i = 0; i < 18; ++i)
     while (buffer.size() > 0)
     {
         int value = buffer.pop();
         //std::cout << "Consumer " << id << " fetched " << value << std::endl;
         synchronized(std::cout) << "Consumer " << id << " fetched " << value << std::endl;
-        //std::this_thread::sleep_for(std::chrono::milliseconds(250));
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+        //std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 }
 
@@ -163,26 +170,29 @@ void producer(int id, BoundedBuffer<200>& buffer){
         //std::cout << "Produced " << id << " produced " << i << std::endl;
         // 这里print 也会乱序
         synchronized(std::cout) << "Produced " << id << " produced " << i << std::endl;
-        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        //std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 
 int main(){
     //BoundedBuffer buffer(200);
     BoundedBuffer<200> buffer(200);
-
+    
+    std::thread p1(producer, 0, std::ref(buffer));
+    std::thread p2(producer, 1, std::ref(buffer));
+    std::thread p3(producer, 2, std::ref(buffer));
     std::thread c1(consumer, 0, std::ref(buffer));
     std::thread c2(consumer, 1, std::ref(buffer));
     std::thread c3(consumer, 2, std::ref(buffer));
-    std::thread p1(producer, 0, std::ref(buffer));
-    std::thread p2(producer, 1, std::ref(buffer));
+    
 
     c1.join();
     c2.join();
     c3.join();
     p1.join();
     p2.join();
+    p3.join();
 
     return 0;
 }
