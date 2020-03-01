@@ -42,10 +42,6 @@ public:
         unique_lock<mutex> lock(shared);
         waiting_writers++;
         /* 等价于
-        while (noWriteAndNoRead() == false)
-        {
-             writerQ.wait(lock);
-        }
         while (!f()) 
         {
             wait(lk);
@@ -55,7 +51,15 @@ public:
         */
         
         // Write 必须是no one writer and no one read!!!!
-        writerCV.wait(lock, bind(&RWLock::noWriteAndNoRead, this));
+        //writerCV.wait(lock, bind(&RWLock::noWriteAndNoRead, this));
+        /* 等价于
+         while (noWriteAndNoRead() == false)
+        {
+             writerQ.wait(lock);
+        }
+        看到没有 两个的判断条件是相反的！！！！！
+        */
+        writerCV.wait(lock, [this](){return noWriteAndNoRead() == true;});
         waiting_writers--;
         ++active_writers;
     }
