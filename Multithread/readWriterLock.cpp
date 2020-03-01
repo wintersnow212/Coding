@@ -16,11 +16,17 @@ Write lock acquire:
     必须要是no active 和 no active write
 
 Reader lock release:
+    应该要判断activeReader吧
     貌似直接是很简单的writerCv.notify_one
 Write lock release:
     稍微复杂一点 需要判断waiting_writers
     同时 write lock是notify all
     read lock 是notify one
+
+Write-preferred :
+    bool nowrite(){
+        return waiting_writers == 0 && active_writers == 0;
+    }
 */
 class RWLock 
 {
@@ -49,6 +55,10 @@ public:
         unique_lock<mutex> lock(shared);
         --active_readers;
         lock.unlock();
+        // 这里需要判断reader的个数吗
+        // 貌似可能不需要 因为就算你这里notify_one 了 但是在write的condit wait的时候还是会check active_readers的
+        // 所以相当于没有notify
+        if (active_readers == 0)
         writerCV.notify_one();
     }
     
@@ -86,7 +96,8 @@ public:
         
         if (waiting_writers > 0)
         {
-            writerCV.notify_all();
+            // 这里只能notify one!!!
+            writerCV.notify_one();
         }
         else
         {
