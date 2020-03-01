@@ -63,7 +63,7 @@ struct BoundedBuffer {
     int rd;
     int count;
 
-    std::mutex _mutex;
+    std::mutex mu;
 
     // 这里conditional varaible 有两个！！！
     std::condition_variable not_full;
@@ -83,11 +83,11 @@ struct BoundedBuffer {
     }
 
     void push(int data){
-        std::unique_lock<std::mutex> l(_mutex);
+        std::unique_lock<std::mutex> lock(mu);
 
         while (count == capacity)
         {
-            not_full.wait(l);
+            not_full.wait(lock);
         }
         // capture list 里面的this还不能少 不然count不知道哪来
         //not_full.wait(l, [this](){return count != capacity;});
@@ -96,14 +96,14 @@ struct BoundedBuffer {
         wrt = (wrt + 1) % capacity;
         ++count;
 
-        l.unlock();
+        lock.unlock();
         not_empty.notify_one();
     }
     
     int pop(){
     
         // 所有的lock都是build around the underlying  mutex
-        std::unique_lock<std::mutex> l(_mutex);
+        std::unique_lock<std::mutex> lock(mu);
         // 这里用while loop 而不是if 也解决了spurious wakeup issue
         // spurious wakeup : a thread might be awoken from its waiting state even though no 
         // thread signaled the condition variable
@@ -120,7 +120,7 @@ struct BoundedBuffer {
           4. 在出function scope destory lock object的时候 If the object currently owns a lock 
              on the managed mutex object,its unlock member is called before destroying object.
           */
-            not_empty.wait(l);
+            not_empty.wait(lock);
         }
         //not_empty.wait(l, [this](){return count != 0; });
 
@@ -138,7 +138,7 @@ struct BoundedBuffer {
         也就是如果不manually unlock的话 wait thread 在被notify后准备re-acquire lock时会被迫等待！！
       */
   
-        l.unlock();
+        lock.unlock();
         not_full.notify_one();
 
         return result;
