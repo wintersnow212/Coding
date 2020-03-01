@@ -81,7 +81,7 @@ public:
 private:
     //那Write-preferring的RW Lock怎麼改呢 很簡單 就改變reader做事的condition即可
 
-    // bool no_one_writing(){
+    // bool nowrite(){
     //     return waiting_writers == 0 && active_writers == 0;
     // }
     
