@@ -139,13 +139,13 @@ public:
              << *m_refCnt << endl;
         
         return *this;
-***************************************************************************/
-    }
-    
+
+    } ***************************************************************************/
 /*********************************************************************
     优化 copy and swap idom https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
 **************************************************************************/
-    SharedPtrSp<T>& operator= (const SharedPtrSp& other)
+    // class 
+    SharedPtrSp& operator= (const SharedPtrSp& other)
     {
         // constructor of tmp handles increment.
         SharedPtrSp tmp(other);
@@ -191,7 +191,7 @@ public:
     }
     
     // Move assignment
-    SharedPtrSp<T>& operator= (SharedPtrSp&& other)
+    SharedPtrSp<T>& operator=(SharedPtrSp&& other)
     {
         if (this == &other)
         {
