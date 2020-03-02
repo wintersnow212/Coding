@@ -153,7 +153,9 @@ void MyVector<T>::grow()
         */
         //memcpy(newData, data, (idx+1) * sizeof(T));
         copy (data, data + idx + 1, newData);
-        // 这里没有destrory old objcet
+        // 这里不需要explict call destructor 
+        // 因为the destructor will be called for all objects in the array when using delete[]
+        // 但是感觉placement new的就需要！！！！！
         delete [] data;
         
         // 最简单就可以直接使用for loop!!!!!
