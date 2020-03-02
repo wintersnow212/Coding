@@ -3,9 +3,9 @@
 using namespace std;
 
 /************************************************************
-这里的memory pool 其实是buddy allocator 
-有点是消除external memory fragmentation(enough memory but not continuous
-
+这里的memory pool 其实是fixed size buddy allocator 
+优点是消除external memory fragmentation(enough memory but not continuous
+缺点是internal memory fragmentation ----- 每个chunk可能有memory waste
 这里的区别是
 1. input 不同 这里我们的chunkSize和chunksPerBlock 都是动态的
    而且是通过constructor传给我们. 
