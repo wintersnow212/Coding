@@ -97,7 +97,7 @@
 00087          * Copy by words in the common case. Look in memcpy.c for more
 00088          * information.
 00089          */
-00090 
+00090         // 这里是针对long type的 不用太管？？？？？
 00091         if ((uintptr_t)dst % sizeof(long) == 0 &&
 00092             (uintptr_t)src % sizeof(long) == 0 &&
 00093             len % sizeof(long) == 0) {
@@ -114,7 +114,8 @@
 00104                         d[i-1] = s[i-1];
 00105                 }
 00106         }
-00107         else {
+00107         else 
+              {
               // copy from back to front
 00108                 char *d = dst;
 00109                 const char *s = src;
