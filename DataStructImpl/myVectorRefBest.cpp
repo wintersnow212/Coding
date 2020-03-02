@@ -1,3 +1,4 @@
+// https://lokiastari.com/blog/2016/02/29/vector-resource-management-ii-copy-assignment/index.html
 // https://lokiastari.com/blog/2016/03/12/vector-resize/index.html
 // https://lokiastari.com/blog/2016/03/19/vector-simple-optimizations/index.html
 template<typename T>
