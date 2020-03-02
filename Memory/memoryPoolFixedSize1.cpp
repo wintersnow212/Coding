@@ -19,6 +19,21 @@ Reference: http://dmitrysoshnikov.com/compilers/writing-a-pool-allocator/
 最开始这么大的block是连续的 但是经过 deallocate后 只有每个chunk内是连续的
 利用free list把不连续的各个chunk连接起来
 ************************************************************/
+/* header
+union Chunk
+{
+    struct
+    {
+        union Chunk* next;
+        // 这里不需要size 因为是fixed size的 
+        // malloc这种variable size的就需要了
+        int size;
+    }tag;
+    
+    long align;
+};
+*/
+
 // 有点像linked list 的node 但是这里的作用只是连接 所以不需要data
 struct Chunk
 {
