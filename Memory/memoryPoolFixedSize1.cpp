@@ -3,6 +3,9 @@
 using namespace std;
 
 /************************************************************
+这里的memory pool 其实是buddy allocator 
+有点是消除external memory fragmentation(enough memory but not continuous
+
 这里的区别是
 1. input 不同 这里我们的chunkSize和chunksPerBlock 都是动态的
    而且是通过constructor传给我们. 
@@ -16,6 +19,7 @@ Reference: http://dmitrysoshnikov.com/compilers/writing-a-pool-allocator/
 最开始这么大的block是连续的 但是经过 deallocate后 只有每个chunk内是连续的
 利用free list把不连续的各个chunk连接起来
 ************************************************************/
+// 有点像linked list 的node 但是这里的作用只是连接 所以不需要data
 struct Chunk
 {
     Chunk* next;  
@@ -34,7 +38,8 @@ public:
         // Init allocate a big block
         pFreeList = allocateBlock();
     }
-    // 所以这里的size其实是chunk Size 而其实fixed size
+
+    // 这里是不需要size argument的 因为我们是fixed size memory pool
     void* allocate()
     {
         if (pFreeList == nullptr)
@@ -48,7 +53,7 @@ public:
         return pRet;
     }
     
-    
+    // 但是dealocate 其实是需要 pointer argument 这样我们才知道应该free哪个
     void deallocate(void* pChunk)
     {
         reinterpret_cast<Chunk*>(pChunk)->next = pFreeList;
