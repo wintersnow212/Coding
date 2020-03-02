@@ -113,31 +113,34 @@ public:
 //             oldCnt = nullptr;
 //         }
         
+    
+/***************************************************************************
+   这是错误的解法其实不用看了！！！！！！！
+   关键错误！！！！ 这里要先保存old 再delete!!!!
+//         if (m_ptr != nullptr)
+//         {
+//             (*m_refCnt)--;
+//             cout << "Destroyed smart_ptr! Ref count is " << *m_refCnt << endl;
+//             if ((*m_refCnt) == 0)
+//             {
+//                 delete m_ptr;
+//                 m_ptr = nullptr;
+//                 delete m_refCnt;
+//                 m_refCnt = nullptr;
+//             }
+//         }
         
-//         // 关键错误！！！！ 这里要先保存old 再delete!!!!
-// //         if (m_ptr != nullptr)
-// //         {
-// //             (*m_refCnt)--;
-// //             cout << "Destroyed smart_ptr! Ref count is " << *m_refCnt << endl;
-// //             if ((*m_refCnt) == 0)
-// //             {
-// //                 delete m_ptr;
-// //                 m_ptr = nullptr;
-// //                 delete m_refCnt;
-// //                 m_refCnt = nullptr;
-// //             }
-// //         }
+//         // 这一步和copy constructor 是一样的！！！！！
+//         m_ptr = other.m_ptr;
+//         m_refCnt = other.m_refCnt;
+//         (*m_refCnt)++;
         
-// //         // 这一步和copy constructor 是一样的！！！！！
-// //         m_ptr = other.m_ptr;
-// //         m_refCnt = other.m_refCnt;
-// //         (*m_refCnt)++;
+        cout << "Copy assignment called! Ref count is "
+             << *m_refCnt << endl;
         
-//         cout << "Copy assignment called! Ref count is "
-//              << *m_refCnt << endl;
-        
-//         return *this;
-//     }
+        return *this;
+***************************************************************************/
+    }
     
 /*********************************************************************
     优化 copy and swap idom https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
@@ -195,6 +198,8 @@ public:
             return *this;
         }
         
+        // 我们可以看到只有assignment(move;copy) 才需要delete
+        // copy constructor 和 move constructor 并不需要！！！！
         delete m_ptr;
         delete m_refCnt;
         
