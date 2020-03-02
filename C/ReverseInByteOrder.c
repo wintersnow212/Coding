@@ -3,7 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <iostream>
 
+using namespace std;
 /*
 ntohl() //Network to Host byte order (Long)
 htonl() //Host to Network byte order (Long)
@@ -13,6 +15,7 @@ htons() //Host to Network byte order (Short)
 */
 
 // bitfield flags;
+
 union Test
 {
     struct 
@@ -29,12 +32,6 @@ union Test
     uint32_t u32All;
 };
 
-/*
- A big-endian ordering places the most significant byte first and the least significant byte last, 
- while a little-endian ordering does the opposite. For example, consider the unsigned hexadecimal number 0x1234, 
- which requires at least two bytes to represent. 
- In a big-endian ordering they would be 12 34, while in a little-endian ordering, the bytes would be arranged 34 12
-*/
 void swapByteOrder(unsigned short& us)
 {
     us = (us >> 8) |
@@ -62,25 +59,6 @@ void swapByteOrder(unsigned long long& ull)
           ((ull>>40) & 0x000000000000FF00) |
           (ull << 56);
 }
-
-/* C function to byte-swap a 32-bit integer */
-static uint32_t ChangeEndianness32(uint32_t value)
-{
-    uint32_t result = 0;
-    result |= (value & 0x000000FF) << 24;
-    result |= (value & 0x0000FF00) << 8;
-    result |= (value & 0x00FF0000) >> 8;
-    result |= (value & 0xFF000000) >> 24;
-    return result;
-}
-/* Larger byte-swaps can be constructed out of smaller ones */
-// 这个很巧妙利用了之前的swap!!!
-uint64_t ChangeEndianness64(uint64_t value)
-{
-    return (uint64_t)(ChangeEndianness32(value & 0xffffffff)) << 32
-                    | ChangeEndianness32(value >> 32);
-}
-
 
 template<typename T>
 T swap_endian(T val)
@@ -113,6 +91,16 @@ int main() {
     
     int arr[8] = {};
     printf("Size of array: %d\n", sizeof(arr));
+    
+    // Runtime check edianess
+    // Create an integer, and read its first byte (least significant byte). 
+    // If that byte is 1, then the system is little endian, 
+    // otherwise it's big endian.
+    unsigned int i = 1;  
+    char* c = (char*)&i;  
+    if (*c)  
+        cout<<"Little endian";  
+    else
+        cout<<"Big endian";
     return 0;
 }
-
