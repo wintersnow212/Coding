@@ -114,40 +114,16 @@ class Vector
                 reserveCapacity(newCapacity);
             }
         }
-        void reserveCapacity(std::size_t newCapacity)
-        {
-            Vector<T>  tmpBuffer(newCapacity);
-
-            simpleCopy<T>(tmpBuffer);
-
-            tmpBuffer.swap(*this);
-        }
         void pushBackInternal(T const& value)
         {
             new (buffer + length) T(value);
             ++length;
         }
-        void moveBackInternal(T&& value)
+        void reserveCapacity(std::size_t newCapacity)
         {
-            new (buffer + length) T(std::move(value));
-            ++length;
-        }
+            Vector<T>  tmpBuffer(newCapacity);
+            std::for_each(buffer, buffer + length, [&tmpBuffer](T const& v){tmpBuffer.pushBackInternal(v);});
 
-        template<typename X>
-        typename std::enable_if<std::is_nothrow_move_constructible<X>::value == false>::type
-        simpleCopy(Vector<T>& dst)
-        {
-            std::for_each(buffer, buffer + length,
-                          [&dst](T const& v){dst.pushBackInternal(v);}
-                         );
-        }
-
-        template<typename X>
-        typename std::enable_if<std::is_nothrow_move_constructible<X>::value == true>::type
-        simpleCopy(Vector<T>& dst)
-        {
-            std::for_each(buffer, buffer + length,
-                          [&dst](T& v){dst.moveBackInternal(std::move(v));}
-                         );
+            tmpBuffer.swap(*this);
         }
 };
