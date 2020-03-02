@@ -5,11 +5,14 @@ using namespace std;
 
 // Give the ownership of heap allocated memory to stack varible
 // so that when it is out of scope, it will be freed autonmatically
+// 非常好！！！！！！！！！！！
+// https://lokiastari.com/blog/2014/12/30/c-plus-plus-by-example-smart-pointer/index.html 
 template<typename T>
 class UniquePtr
 {
 public:
-    UniquePtr()
+    // Explicit constructor
+    explicit UniquePtr()
         : m_ptr(nullptr)
     {
         
@@ -24,6 +27,15 @@ public:
         
     }
     
+    // 这里因为在class 里面 所以不需要写成UniquePtr<T>!!!
+    UniquePtr (const UniquePtr& other) = delete;
+    
+    UniquePtr<T>& operator= (const UniquePtr& other) = delete;
+    
+    // Const correct access owned object
+    T* operator->() const {return m_ptr;}
+    T& operator*()  const {return *m_ptr;}
+    
    // Move constructor 
     UniquePtr(T&& other)
         : m_ptr(other.m_ptr)
@@ -35,11 +47,6 @@ public:
     {
         delete m_ptr;
     }
-    
-    
-    UniquePtr (const UniquePtr<T>& other) = delete;
-    
-    UniquePtr<T>& operator= (const UniquePtr<T>& other) = delete;
     
 private:
     T* m_ptr;
