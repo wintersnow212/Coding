@@ -142,38 +142,39 @@ public:
 /*********************************************************************
     优化 copy and swap idom https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
 **************************************************************************/
-//     SharedPtrSp<T>& operator= (const SharedPtrSp& other)
-//     {
-//         // constructor of tmp handles increment.
-//         SharedPtrSp tmp(other);
+    SharedPtrSp<T>& operator= (const SharedPtrSp& other)
+    {
+        // constructor of tmp handles increment.
+        SharedPtrSp tmp(other);
         
-//         // swap old object to temp 
-//         // 之后temp会在函数末尾free掉
-//         swap(m_ptr, tmp.m_ptr);
-//         swap(m_refCnt, tmp.m_refCnt);
+        // swap old object to temp 
+        // 之后temp会在函数末尾free掉
+        swap(m_ptr, tmp.m_ptr);
+        swap(m_refCnt, tmp.m_refCnt);
         
-//         return *this;
-//     }
+        return *this;
+    }
     
 /*********************************************************************
     再一步优化 copy performed by initializing the (non-reference) 
     parameter i.e. copy performed by "pass by value"
 **************************************************************************/
-    SharedPtrSp& operator= (SharedPtrSp other)
-    {
-        this->swap(other);
+//     SharedPtrSp& operator= (SharedPtrSp other)
+//     {
+//         this->swap(other);
         
-        return *this;
-    }
+//         return *this;
+//     }
     
-    // Always good to have a swap function
-    // Make sure it is noexcept
-    void swap(SharedPtrSp& other) noexcept
-    {
-        // 这里的swap 不能是swap(other, *this) 而是分别swap!!!!!!
-        std::swap(m_ptr,  other.m_ptr);
-        std::swap(m_refCnt, other.m_refCnt);
-    }
+//     // Always good to have a swap function
+//     // Make sure it is noexcept
+//     void swap(SharedPtrSp& other) noexcept
+//     {
+//         // 这里的swap 不能是直接的swap(other, *this) 
+//         // 而是分别swap 每一个member
+//         std::swap(m_ptr,  other.m_ptr);
+//         std::swap(m_refCnt, other.m_refCnt);
+//     }
     
     // Move constructor
     SharedPtrSp (SharedPtrSp&& other)
