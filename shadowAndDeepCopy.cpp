@@ -11,6 +11,7 @@ public:
     {
 
     }
+    
     MyString(const char* data)
     {
         // 这里一定要+1！！！！
@@ -209,7 +210,7 @@ int main()
     // The destructor deletes copy's string, which leaves hello with a dangling pointer
 
     cout << test.getData() << endl;
-    MyString assign("Hi Earch");
+    MyString assign("Hello earch");
     // MyString assign;
     // assign = test;
     // cout << assign.getData() << endl;
