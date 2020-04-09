@@ -17,27 +17,31 @@ void swapStr(char* s)
 1. 为什么要pass by reference
    这里一定要是pass by reference 
    或者是char** 因为不然pStr指向根本没有update; 因为没有指向malloc那块内存！！！
-
 2. 为什么直接assign就可以了 不要allocate and strcpy
    因为感觉字符串指针比较特别 不是local varaible 而是在read only memory
    如果是字符串数组就不可以了 就是local variable 会被free 掉
 */
-void Correct1(const char *& pChar)
+void Correct1(const char*& pChar)
 {
     const char* pSource = "Tianyu Xia get offer";
+    // 这里很神奇 pChar完全没有allocate 
+    // 可以work的原因其实就是想相当于指针的改变指向
+    // pChar现在指向pSource
     pChar = pSource;
 }
 
 
 void Correct2(char** pChar)
 {
-    
     const char* pSource = "Tianyu Xia get offer again";
+    // 这里需要allocate memory 一般老说pass in 是已经allocate好的比较好
+    // 指针没有用要多想想其underlying memory
     *pChar = (char*)malloc((strlen(pSource) + 1) * sizeof(char));
 
     // 错误2 这里要+1 因为strlen是不包括null termintor的
     strncpy(*pChar, pSource, strlen(pSource) + 1);
 }
+
 
 void Correct3(char*& pChar)
 {
@@ -69,10 +73,11 @@ void Wrong1(char* pChar)
 void Wrong2(char* const pChar)
 {
     const char* pSource = "Hello, Wrong";
-    pChar = (char*)malloc(strlen(pSource) + 1);
+    char* pCharTemp = (char*)malloc(strlen(pSource) + 1);
 
     // 错误2 这里要+1 因为strlen是不包括null termintor的
-    strncpy(pChar, pSource, strlen(pSource) + 1);
+    strncpy(pCharTemp, pSource, strlen(pSource) + 1);
+    
 }
 
 int main()
@@ -146,3 +151,4 @@ int main()
 
     return 0;
 }
+
