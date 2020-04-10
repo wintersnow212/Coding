@@ -10,10 +10,10 @@ using namespace std;
 // Do not modify.
 class Image {
 public:
-  Image (const string& name) : name_(name) {}
-  const string& name() const { return name_; }
+    Image (const string& name) : name_(name) {}
+    const string& name() const { return name_; }
 private:
-  string name_;
+    string name_;
 };
 // Mock image manipulation library.
 // Do not modify.
@@ -136,12 +136,12 @@ public:
         return new ConvertToGrayScale();
     }
     
-    virtual void imageProc(Image& image)
+    virtual void imageProc(Image& image) override
     {
         ImgLib::convertToGrayScale(image);
     }
     
-    virtual void imageParse(istringstream& in)
+    virtual void imageParse(istringstream& in) override
     {
     
     }
@@ -155,12 +155,12 @@ public:
         return new Blur();
     }
 
-    virtual void imageProc(Image& image)
+    virtual void imageProc(Image& image) override
     {
         ImgLib::blur(image, factor);
     }
     
-    virtual void imageParse(istringstream& in)
+    virtual void imageParse(istringstream& in) override
     {
         string str;
         in >> str;
@@ -177,12 +177,13 @@ public:
     {
         return new Resize();
     }
-    virtual void imageProc(Image& image)
+    
+    virtual void imageProc(Image& image) override
     {
         ImgLib::resize(image, x, y);
     }
     
-    virtual void imageParse(istringstream& in)
+    virtual void imageParse(istringstream& in) override
     {
         string str;
         in >> str;
@@ -203,12 +204,12 @@ public:
         return new BlendWith();
     }
     
-    virtual void imageProc(Image& image)
+    virtual void imageProc(Image& image) override
     {
         ImgLib::blend(image, *other);
     }
     
-    virtual void imageParse(istringstream& in)
+    virtual void imageParse(istringstream& in) override
     {
         string str;
         in >> str;
