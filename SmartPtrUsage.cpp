@@ -213,6 +213,7 @@ int main()
     //const A& rA = *myFun();
     
     // 解决方案
+    // 这里的用auto 来接住是可以的
     auto p = myFun();
     const A& rA = *p;
     
