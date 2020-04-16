@@ -180,6 +180,8 @@ public:
 //     }
     
     // Move constructor
+    // Move semantics say that the source object may be left in an undefined (but must be valid) state. 
+    // So the easiest way to implement this is simply to swap the state of the current object with the source object (we know our state is valid so just swap it with the incoming object state (its destructor will then take care of destroying the pointer we are holding)).
     SharedPtrSp (SharedPtrSp&& other)
         : m_ptr(other.m_ptr)
         , m_refCnt(other.m_refCnt)
