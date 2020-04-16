@@ -120,11 +120,12 @@ int main() {
     
     cout << sp->getStr();
     SharedPtr<Test> spCpy(sp);
-    spCpy->setStr("Tianyu Xia!");
+    spCpy->setStr("Tianyu Xia! ");
     cout << spCpy->getStr();
     
-    SharedPtr<Test> spAssign(new Test(" Get Google Offer!"));
+    SharedPtr<Test> spAssign(new Test("Get Google Offer!"));
     sp = spAssign;
     cout << sp->getStr() << endl;
     return 0;
 }
+
