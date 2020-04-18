@@ -129,25 +129,6 @@ bool print_num(int i)
 }
 
 
-void funct(string& s)
-{
-    std::cout << s << endl;
-    
-    s = "Function Child thread say hello to main";
-}
-
-class Fuctor
-{
-public:
-    void operator()(string& s)
-    {
-        std::cout << s << endl;
-    
-        s = "Functor Child thread say hello to main";
-    }
-
-};
-
 void threadPoolAdd(ThreadPool& tPool)
 {
     int taskNum = 6;
@@ -172,6 +153,45 @@ void threadExcute(ThreadPool& tPool)
     }
 }
 
+void Funct(string& s)
+{
+    std::cout << s << endl;
+    
+    s = "Function Child thread say hello to main";
+}
+
+class Fuctor
+{
+public:
+    void operator()(string& s)
+    {
+        std::cout << s << endl;
+    
+        s = "Functor Child thread say hello to main";
+    }
+
+};
+
+struct Sum
+{
+    int val;
+    mutex mu;
+
+};
+
+
+void AddSum(Sum& sum)
+{
+    unique_lock<mutex> lock(sum.mu);
+    
+    sum.val++;
+}
+// void AddSum(int& sum)
+// {
+//     sum++;
+// }
+
+
 // To execute C++, please define "int main()"
 int main() {
     
@@ -183,35 +203,42 @@ int main() {
     Thread t3 is passed a lambda to execute 貌似lamdba capture variable 
     但是你要pass in argument 比较难
     *******************************************/
-
-    for (int i = 0; i < 2; ++i)
+    string s = "Main thread say hello to child";
+    /*********************************************
+    // 这里一定要std::ref!!!
+    // 因为 The std::thread constructor copies the supplied values, 
+    // without converting to the expected argument type (which is reference type in this     
+    // case, see  funct()).!!!! 
+    // So we need to wrap the arguments that really needs to be references in std::ref.
+    *******************************************/
+    std::thread t1(Funct, ref(s));
+    t1.join();
+    // 卧槽这错误 C++说whenever the statement 可以当做function
+    // 就会被当做function
+    // Fuctor fun;
+    // std::thread t2(fun, ref(s));
+    cout << s << endl;
+    
+    
+    /*********************************************
+    如何thread safe!!!!!
+    可以构建一个thread safe的struct 每一个都有一个mutex
+    *********************************************/
+    vector<thread> threads;
+    //int sum = 0;
+    Sum su = {};
+    for (int i = 0; i < 100; ++i)
     {
-        string s = "Main thread say hello to child";
-        
-        if (i == 0)
-        {
-            /*********************************************
-            // 这里一定要std::ref!!!
-            // 因为 The std::thread constructor copies the supplied values, 
-            // without converting to the expected argument type (which is reference type in this     
-            // case, see  funct()).!!!! 
-            // So we need to wrap the arguments that really needs to be references in std::ref.
-            *******************************************/
-            std::thread t1(funct, ref(s));
-            t1.join();
-        }
-        else
-        {
-            // 卧槽这错误 C++说whenever the statement 可以当做function
-            // 就会被当做function
-            Fuctor fun;
-            std::thread t2(fun, ref(s));
-            t2.join();
-        }
-        
-        cout << s << endl;
+        threads.push_back(thread(AddSum, ref(su)));
     }
-       
+    
+    for (int i = 0; i < 100; ++i)
+    {
+        threads[i].join();
+    }
+    
+    cout << su.val << endl;
+    
     std::vector<std::thread> threadList;
     for(int i = 0; i < 3; i++)
     {
