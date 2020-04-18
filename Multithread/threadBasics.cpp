@@ -176,10 +176,12 @@ void threadExcute(ThreadPool& tPool)
 int main() {
     
     /*********************************************
+     https://www.jyt0532.com/2016/12/23/c++-multi-thread-p1/
     Here in this code snippet we are creating three threads:
     Thread t1 is passed a function to execute
     Thread t2 is passed a functor to execute
-    Thread t3 is passed a lambda to execute 
+    Thread t3 is passed a lambda to execute 貌似lamdba capture variable 
+    但是你要pass in argument 比较难
     *******************************************/
 
     for (int i = 0; i < 2; ++i)
@@ -213,12 +215,14 @@ int main() {
     std::vector<std::thread> threadList;
     for(int i = 0; i < 3; i++)
     {
-        threadList.push_back(std::thread ([i]()
-                             {
-                                    std::this_thread::sleep_for(std::chrono::seconds(i));
-                                    synchronized(std::cout) << "hello thread " << std::this_thread::get_id()
+        threadList.push_back(
+            std::thread ([i]()
+                        {
+                            std::this_thread::sleep_for(std::chrono::seconds(i));
+                            synchronized(std::cout) << "hello thread " << std::this_thread::get_id()
                                     << " paused " << i << " seconds" << std::endl;
-                              }));
+                        })
+            );
         /*********************************************
         // 在这立马 thread Id 就不会变化 因为会把它当做thread结束了
         // 就不会spawn一个new thread
@@ -253,4 +257,3 @@ int main() {
     std::thread::hardware_concurrency();
     return 0;
 }
-
