@@ -1,5 +1,15 @@
-// 这样不一定对！！！！！
-
+// 这样不一定对！！！！！ 感觉还可以？？？ 用shared_mutex 
+// 也就是read write lock
+#include <iostream>
+#include <vector>
+#include <list>
+#include <atomic>
+#include <utility>
+#include <shared_mutex>
+#include <mutex>
+#include <thread>
+#include <unordered_map>
+using namespace std;
 class LRUCache {
 public:
     LRUCache(int capacity) {
@@ -10,7 +20,7 @@ public:
         if (keyToIt.find(key) == keyToIt.end())
             return -1;
         
-        unique_lock<mutex> lock(*keyToIt[key]->mu);
+        unique_lock<shared_mutex> lock(*keyToIt[key]->sharedMu);
         int ret = keyToIt[key]->val;
         
         m_list.splice(m_list.begin(), m_list, keyToIt[key]);
@@ -22,7 +32,7 @@ public:
     {
         if (keyToIt.find(key) != keyToIt.end())
         {
-            unique_lock<mutex> lock(*keyToIt[key]->mu);
+            unique_lock<shared_mutex> lock(*keyToIt[key]->sharedMu);
             keyToIt[key]->val = value;
             m_list.splice(m_list.begin(), m_list, keyToIt[key]);
         }
@@ -30,7 +40,7 @@ public:
         {
             if (m_list.size() == cap)
             {
-                unique_lock<mutex> lock(*m_list.back().mu);
+                unique_lock<shared_mutex> lock(*keyToIt[key]->sharedMu);
                 int delKey = m_list.back().key;
                 keyToIt.erase(delKey);
                 m_list.pop_back();
@@ -50,13 +60,20 @@ private:
         {
             key = k;
             val = v;
-            mu = make_unique<mutex>();
+            sharedMu = make_unique<shared_mutex>();
         }
         int key;
         int val;
-        unique_ptr<mutex> mu;
+        // 如果要储存的话这里不用储存mutex object 我们可以存储pointer to object
+        unique_ptr<shared_mutex> sharedMu;
     };
     list<Node> m_list;
     unordered_map<int, list<Node>::iterator> keyToIt;
     int cap;
 };
+
+
+int main()
+{
+    return 0;
+}
