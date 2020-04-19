@@ -1,7 +1,3 @@
-#include <iostream>
-#include <cassert>
-using namespace std;
-
 /************************************************************
 这里的memory pool 其实是fixed size buddy allocator 
 优点是消除external memory fragmentation(enough memory but not continuous
@@ -62,13 +58,15 @@ public:
             pFreeList = allocateBlock();
         }
         
+        
         void* pRet = pFreeList;
-        pFreeList  = pFreeList->next;
+        pFreeList = pFreeList->next;
         
         return pRet;
     }
     
-    // 但是dealocate 其实是需要 pointer argument 这样我们才知道应该free哪个
+    // 但是deallocate 其实是需要 pointer argument 这样我们才知道应该free哪个
+    // 这里其实就是inset to head 把一个个不连续的memory block连起来
     void deallocate(void* pChunk)
     {
         reinterpret_cast<Chunk*>(pChunk)->next = pFreeList;
@@ -79,7 +77,10 @@ private:
     Chunk* allocateBlock()
     {
         cout << "\nAllocating block (" << chunksPerBlock << " chunks):\n\n";
-        
+        // 这里的pointer我们就是给我们提供一个link 和access 一下个block的功能
+        // 其实这里的指针应该是没有占用任何的空间的
+        // 和malloc不一样 因为malloc是dynamic size的所以他的header是需要额外空间
+        // 来存储每个chunk的size的这里我们不需要因为是fixed size的
         int totalSize = chunksPerBlock * chunkSize;
         // 所以这里就是char* 为单位的 所以可以看出这里就是1Byte
         Chunk* pBegin = static_cast<Chunk*>(malloc(totalSize));
@@ -90,6 +91,9 @@ private:
             pTrav->next = reinterpret_cast<Chunk*>((char*)pTrav + chunkSize);
             pTrav = pTrav->next;
         }
+        // 这一步不能少
+        // 其实这里node和linkedlist的感觉不一样 这里不是allocate each node
+        // 而是一个一个连接起来的
         pTrav->next = nullptr;
         return pBegin;
     }
@@ -101,9 +105,7 @@ private:
 
 
 /**********************************************
-
 Usage function !!!!
-
 **********************************************/
 struct Object 
 {
@@ -124,7 +126,7 @@ struct Object
     
     static void operator delete(void* ptr) 
     {
-      return allocator.deallocate(ptr);
+        return allocator.deallocate(ptr);
         //return allocator.deallocate(ptr, size);
     }
 };
@@ -134,38 +136,39 @@ PoolAllocator Object::allocator{sizeof(Object), 8};
 
  
 int main(int argc, char const *argv[]) {
- 
-  // Allocate 10 pointers to our `Object` instances:
-  constexpr int arraySize = 10;
- 
-  Object *objects[arraySize];
- 
-  // Two `uint64_t`, 16 bytes.
-  cout << "size(Object) = " << sizeof(Object) << endl << endl;
- 
-  // Allocate 10 objects. This causes allocating two larger,
-  // blocks since we store only 8 chunks per block:
- 
-  cout << "About to allocate " << arraySize << " objects" << endl;
- 
-  for (int i = 0; i < arraySize; ++i) {
-    objects[i] = new Object();
-    cout << "new [" << i << "] = " << objects[i] << endl;
-  }
- 
-  cout << endl;
- 
-  // Deallocated all the objects:
- 
-  for (int i = arraySize - 1; i >= 0; --i) {
-    cout << "delete [" << i << "] = " << objects[i] << endl;
-    delete objects[i];
-  }
- 
-  cout << endl;
- 
-  // New object reuses previous block:
- 
-  objects[0] = new Object();
-  cout << "new [0] = " << objects[0] << endl << endl;
+    // Allocate 10 pointers to our `Object` instances:
+    constexpr int arraySize = 10;
+
+    Object *objects[arraySize];
+
+    // Two `uint64_t`, 16 bytes.
+    cout << "size(Object) = " << sizeof(Object) << endl << endl;
+
+    // Allocate 10 objects. This causes allocating two larger,
+    // blocks since we store only 8 chunks per block:
+
+    cout << "About to allocate " << arraySize << " objects" << endl;
+
+    for (int i = 0; i < arraySize; ++i) 
+    {
+        objects[i] = new Object();
+        cout << "new [" << i << "] = " << objects[i] << endl;
+    }
+
+    cout << endl;
+
+    // Deallocated all the objects:
+
+    for (int i = arraySize - 1; i >= 0; --i) 
+    {
+        cout << "delete [" << i << "] = " << objects[i] << endl;
+        delete objects[i];
+    }
+
+    cout << endl;
+
+    // New object reuses previous block:
+    objects[0] = new Object();
+    cout << "new [0] = " << objects[0] << endl << endl;
 }
+
