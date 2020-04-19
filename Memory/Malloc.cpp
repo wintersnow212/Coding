@@ -1,3 +1,6 @@
+#include <iostream>
+using namespace std;
+
 /*
 An Implementation Challenge
 • Need information about each free block
