@@ -15,10 +15,10 @@ haisql::vector限制size大小不超过20亿，占用空间为16Byte，比std库
 主要原因是我们考虑一般不会有20亿条记录的vector场景存在，限制size和capacity都是4字节的unsigned int，可以节约出8字节的空间。
 这块优化的思路是不为常规场景以外付出额外的代价。
 */
-
 #include <iostream>
 #include <cstring>
 #include <exception>
+#include <algorithm>
 using namespace std;
 
 template<typename T>
@@ -36,13 +36,14 @@ public:
     MyVector(int size)
         : data (new T[size])
         , cap(size)
-        // 关键这里应该是idx = size - 1 因为idx只是用于push_back
-        , idx(size-1)
+        , idx(size - 1)
+        //, idx(-1)
+        
     {
         memset(data, 0, sizeof(T) * cap); 
     }
     
-    // Copy constructor
+    // Copy constructor deep copy rather than shadow copy!!
     MyVector(const MyVector& other)
         : cap(other.cap)
         , idx(other.idx)
@@ -56,21 +57,52 @@ public:
            target object). Thus, no leak.
         */
         //T* delData = data;
+        // if (delData != nullptr)
+        //.   delete delData
         printf("%02x\n", data);
         cout << "I am wild pointer" << endl;
-            
+  
         data = new T[cap];
-        memcpy(data, other.data, sizeof(T)*(other.idx + 1));
+        //memcpy(data, other.data, sizeof(T)*(other.idx + 1));
+        for (int i = 0; i <= other.idx; ++i)
+        {
+            data[i] = other.data[i];
+        }
         //copy (other.data, other.data + other.idx + 1, data);
-        // if (delData != nullptr)
-        //     delete [] delData;
-    }
-    
-    MyVector(MyVector&& other)
-    {
 
     }
     
+    // Copy assignment
+    MyVector& operator=(const MyVector& other)
+    {
+        cout << "cpy assignment constructor called" << endl;
+        MyVector cpy = other;
+        swapHelper(cpy);
+        return *this;
+    }
+    
+    // Move Constructor
+    MyVector(MyVector&& other)
+        : cap(0)
+        , idx(-1)
+        , data(nullptr)
+    {
+        // 其实就是先创立一个valid but cheap的 state也就是把this给初始化
+        // 然后swap!!!
+        // The source object now has a nullptr/
+        // This object has taken the state of the source object.
+        cout << "move constructor called" << endl;
+        swapHelper(other);
+        //other.swapHelper(*this);
+    }
+    
+
+    void swapHelper(MyVector& other)
+    {
+        swap(cap, other.cap);
+        swap(idx, other.idx);
+        swap(data, other.data);
+    }
     void push_back(const T& val);
     
     void pop_back();
@@ -101,6 +133,7 @@ private:
     
     T* data;
     int cap;
+    // index 是为了看到什么时候grow!!!!
     int idx;
 };
 
@@ -112,16 +145,9 @@ private:
 */
 template<typename T>
 void MyVector<T>::grow()
-{
+{    
     // 这里的起始情况不能忘了！！！！
-    if (cap == 0)
-    {
-        cap = 1;
-    }
-    else
-    {
-        cap *= 2;
-    }
+    cap = (cap == 0) ?  1 : 2 * cap;
     
     T* newData = new T[cap];
     
@@ -138,34 +164,32 @@ void MyVector<T>::grow()
         
         The problem with using memcpy is that it bypasses copy constructors. 
         This is OK only when your class is composed of primitives.
-
-        However, Pen class has non-primitive data members of type std::string.           These objects require a call of copy constructor to be copied. memcpy 
+        However, Pen class has non-primitive data members of type std::string.           
+        These objects require a call of copy constructor to be copied. memcpy 
         does not perform any calls to copy constructors, which leads to internal 
         representations of std::string becoming shared, which in turn causes 
         undefined behavior on destruction.
-
         Copying with a loop, on the other hand, invokes a copy constructor, so 
         your code runs without a problem.
-
         C++ Standard Library provides a utility function for copying ranges     
         called std::copy. Using this function avoids the problem that you see,
         because it invokes copy constructors as needed.
         */
-        //memcpy(newData, data, (idx+1) * sizeof(T));
-        copy (data, data + idx + 1, newData);
+        //copy (data, data + idx + 1, newData);
         // 这里不需要explict call destructor 
-        // 因为the destructor will be called for all objects in the array when using delete[]
+        // 因为the destructor will be called for all objects in the array
+        // when using delete[]
         // 但是感觉placement new的就需要！！！！！
-        delete [] data;
+        //delete [] data;
         
         // 最简单就可以直接使用for loop!!!!!
-        // for (int i = 0; i < idx + 1; ++i)
-        // {
-        //     newData[i] = data[i];
-        //     data[i].~T();
-        // }
+        for (int i = 0; i < idx + 1; ++i)
+        {
+            newData[i] = data[i];
+            data[i].~T();
+        }
         
-        //delete [] data;
+        delete [] data;
     }
     
     data = newData;
@@ -174,14 +198,11 @@ void MyVector<T>::grow()
 /*
 vector 的push_back 是worst O(n);  average/amortized O(1)
 http://faculty.cs.tamu.edu/klappi/csce411-f13/csce411-amortized2.pdf
-
 if i - 1  = 2^k for some k :
 Ci = 1 + 2^k
 Otherwise:
 Ci = 1
-
 Total cost  
-
 How long does it take to do a total of n push_back() operations, starting with an empty vector?
 Let k be the smallest integer such that n ≤ 2k. For the sake of simplicity, we'll do the analysis as if we were actually going to do 2k pushes.
 Let m be the current size() of the vector
@@ -196,7 +217,6 @@ Total effort is
 Total effort is O(2k+1).
 But we started with the statement that n=2k, so this is
 =O(2n)=O(n)
-
 Average Cost : total/n --- O(1)
 */
 template<typename T>
@@ -268,21 +288,42 @@ int main() {
             std::cout << v2[i] << std::endl;
         }
 
-        cout << "---------vetcor 3---------" << endl;
+        cout << "---------vetcor 3 move---------" << endl;
+        MyVector<int> v4(std::move(v2));   
+        for (int i = 0; i < v4.size(); ++i)
+        {
+            std::cout << v4[i] << std::endl;
+        }
+        cout << "vector 2 size after mvoe is " << v2.size() << endl;
+        
+        cout << "---------vetcor 4---------" << endl;
         MyVector<int> v3(6);
+        for (int i = 0; i < v3.size(); ++i)
+        {
+        
+        }
         v3[1] = 2;
         for (int i = 0; i < v3.size(); ++i)
         {
             std::cout << v3[i] << std::endl;
         }
         
-        v3.pop_back(); v3.pop_back(); v3.pop_back();
-        v3.pop_back(); v3.pop_back(); v3.pop_back();
-        v3.pop_back();
+        cout << "---------vetcor copy assignment---------" << endl;
+        v4 = v3;
+        for (int i = 0; i < v4.size(); ++i)
+        {
+            std::cout << v4[i] << std::endl;
+        }
         
+        v3.pop_back(); v3.pop_back(); v3.pop_back();
+        v3.pop_back(); v3.pop_back(); v3.pop_back();
+        // 这里是throw exception的时候！！！！
+        v3.pop_back();
+          
     } catch (const char* msg) { 
         cout << msg <<endl; 
         return -1;
     }
+
     return 0;
 }
