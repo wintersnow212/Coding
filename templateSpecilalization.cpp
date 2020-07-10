@@ -62,13 +62,14 @@ template class Foo<int>;
 *  另外，可以限制模板参数在一个范围取值或满足一定关系等，这称为部分特例化
 * （partial specialization
 ****************************************************************/
-/******************这个是完全实例化*******************/
+
 template<typename T>
 struct checkHelper
 {
     enum {value = checkHelper<T>::value};
 };
 
+/******************这个是完全实例化*******************/
 template<>
 struct checkHelper<int>
 {

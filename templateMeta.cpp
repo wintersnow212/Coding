@@ -87,7 +87,7 @@ public:
 
 
 /****************************************************************
- Small types check utility
+ Get the sizeof
 ****************************************************************/
 template <typename T> 
 struct SizeOfT 
@@ -96,7 +96,9 @@ struct SizeOfT
 };
 
 
-
+/****************************************************************
+ Check the pointer type
+****************************************************************/
 template <typename T>
 struct is_pointer_type
 {
@@ -116,14 +118,16 @@ bool _is_pointer(const T&)
     return is_pointer_type<T>::value;
 }
 
+/****************************************************************
+ Check if it is even number 
+****************************************************************/
 //这里不能用typename 很简单因为typename只适用于type啊 从字面意思！！！！
 template<int T>
 struct isEvenNumber
 {
+    // 这里使用了static constexpr
     static constexpr bool value = (T&1) ? false : true;
 };
-
-
 
 
 // universal reference
@@ -137,6 +141,7 @@ class Test
 {
     
 };
+
 int main()
 {
     typedef int* A;
