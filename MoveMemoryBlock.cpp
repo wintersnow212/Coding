@@ -10,15 +10,12 @@ using namespace std;
 //https://www.learncpp.com/cpp-tutorial/15-3-move-constructors-and-move-assignment/
 // 可能需要disable copy constructor
 // copy&&move construct 不用free 但是感觉copy assignment 和move assignment需要
-
 A move constructor is called:
-
 when an object initializer is std::move(something)
 when an object initializer is std::forward<T>(something) and T is not an lvalue reference type (useful in template programming for "perfect forwarding")
 when an object initializer is a temporary and the compiler doesn't eliminate the copy/move entirely
 when returning a function-local class object by value and the compiler doesn't eliminate the copy/move entirely
 when throwing a function-local class object and the compiler doesn't eliminate the copy/move entirely
-
 ****************************************************************************************/
 
 template<typename T>
@@ -100,19 +97,19 @@ public:
     // once it returns, the temporary will be destroyed.
     // 你pass in lValue的时候只要用const& 就避免copy了呀
     // 综上所述 提升的地方就在于当你是pass in temporart object的时候可以避免copy
-    MemoryBlock (MemoryBlock&& other)
-        :_length(other._length)
-        ,_data(other._data)
+//     MemoryBlock (MemoryBlock&& other)
+//         :_length(other._length)
+//         ,_data(other._data)
         
-    {
-        std::cout << "In MemoryBlock(MemoryBlock&&). length = "
-         << other._length << ". Moving resource." << std::endl;
+//     {
+//         std::cout << "In MemoryBlock(MemoryBlock&&). length = "
+//          << other._length << ". Moving resource." << std::endl;
 
-        // Release the data pointer from the source object so that
-        // the destructor does not free the memory multiple times.
-        other._data   = nullptr;
-        other._length = 0;
-    }
+//         // Release the data pointer from the source object so that
+//         // the destructor does not free the memory multiple times.
+//         other._data   = nullptr;
+//         other._length = 0;
+//     }
 
     /* 涨姿势了！！！！！！
        If you provide both a move constructor and a move assignment operator 
@@ -122,15 +119,20 @@ public:
        assignment
     */
     // Move constructor.
-//     MemoryBlock(MemoryBlock&& other)
-//        : _length(0)
-//        , _data(nullptr)
+    MemoryBlock(MemoryBlock&& other)
+       // : _length(0)
+       // , _data(nullptr)
+        // 可以进一步简化直接call consturctor
+        // 但是这里初始化不能少！！！！！！！！！因为这样会调用move assignment op
+        // 然后问题就是delete[] _data
+        : MemoryBlock(0)
           
-//     {
-//         std::cout << "In MemoryBlock(MemoryBlock&&). length = "
-//         << other._length << ". Moving resource." << std::endl;
-//         *this = std::move(other);
-//     }
+    {
+        std::cout << "In MemoryBlock(MemoryBlock&&). length = "
+        << other._length << ". Moving resource." << std::endl;
+        cout << "The problem is here" << endl;
+        *this = std::move(other);
+    }
     
     // Move assignment
     MemoryBlock& operator=(MemoryBlock&& other)
