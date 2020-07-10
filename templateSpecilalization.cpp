@@ -63,13 +63,17 @@ template class Foo<int>;
 * （partial specialization
 ****************************************************************/
 
+
+/****************************************************************
+    这个是完全实例化 Full specialization
+****************************************************************/
+// primary template
 template<typename T>
 struct checkHelper
 {
-    enum {value = checkHelper<T>::value};
+    // 其实这里完全不需要call啊 这也是full specilization的体现
+    //enum {value = checkHelper<T>::value};
 };
-
-/******************这个是完全实例化*******************/
 template<>
 struct checkHelper<int>
 {
@@ -89,21 +93,25 @@ bool isInt()
     return checkHelper<T>::value;
 }
 
-/******************这个是局部实例化*******************/
+/****************************************************************
+    这个是局部实例化 partial specialization
+****************************************************************/
 // 这个也是实现了type traits
-template<typename T>
-// 这里不能写成下面的形式 
-// struct isPointer<T>
-// 因为那样是partical specification 
+// 这里不能写成下面的形式 struct isPointer<T> 因为那样是partical specialization 
 // 写成这样的话 我们就缺少full specification了
+// primary template
+template<typename T>
 struct isPointer
 {
+    // 用enum就可以直接:: access value了
     enum {value = false};
 };
 
+// 这里我们说是partial的原因在于仍然是generic的typename T
 template<typename T>
 struct isPointer<T*>
 {
+    // The name of an unscoped enumeration may be omitted
     enum {value = true};
 };
 
@@ -117,10 +125,14 @@ struct is_pointerChecker
 template <typename T>
 struct is_pointerChecker<T*>
 {
-    static constexpr bool value {true};
+    //static constexpr bool value {true};
+    static const bool value = true;
 };
 
 // https://www.hackerrank.com/challenges/cpp-class-template-specialization/problem
+enum class Fruit { apple, orange, pear };
+enum class Color { red, green, orange };
+
 template<typename T>
 struct Traits
 {
@@ -207,10 +219,23 @@ int main()
  
 }
 
-
 /****************************************************************************
- 这个是模板型模板参数； 这里一定要用class 而不是template
+ Partial specializtion的概念
 ****************************************************************************/
+//Suppose there exists a KeyValuePair class with two template parameters, as follows.
+template <typename Key, typename Value>
+class KeyValuePair {};
+
+
+// The following is an example of a class that defines an explicit full template specialization of KeyValuePair by pairing integers with strings. The class type retains the same name as the original version.
+template <>
+class KeyValuePair<int, std::string> {};
+
+// The next is an example of partial specialization of KeyValuePair with the same name as the original version and one specialized template parameter.
+// 这里就是Key 保持generic 但是Value specifized to std::string!!!!
+template <typename Key>
+class KeyValuePair<Key, std::string> {};
+
 /****************************************************************************
  这个是模板型模板参数； 这里一定要用class 而不是template
 ****************************************************************************/
@@ -232,4 +257,3 @@ class A<int, T*, 5> {}; // #3: partial specialization where T1 is int, I is 5,
  
 template<class X, class T, int I>
 class A<X, T*, I> {};   // #4: partial specialization where T2 is a pointer
-
