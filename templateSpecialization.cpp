@@ -220,17 +220,20 @@ int main()
 }
 
 /****************************************************************************
- Partial specializtion的概念
+ Partial specialization的概念
 ****************************************************************************/
 //Suppose there exists a KeyValuePair class with two template parameters, as follows.
 template <typename Key, typename Value>
 class KeyValuePair {};
 
 
-// The following is an example of a class that defines an explicit full template specialization of KeyValuePair by pairing integers with strings. The class type retains the same name as the original version.
+// The following is an example of a class that defines an explicit full template 
+// specialization of KeyValuePair by pairing integers with strings. 
+// The class type retains the same name as the original version.
 template <>
 class KeyValuePair<int, std::string> {};
 
+// 可以看到最大的区别就是full/explict specialization在template<>里面没有typename了
 // The next is an example of partial specialization of KeyValuePair with the same name as the original version and one specialized template parameter.
 // 这里就是Key 保持generic 但是Value specifized to std::string!!!!
 template <typename Key>
