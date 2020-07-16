@@ -15,7 +15,8 @@ using namespace std;
 • You want to prevent clients from being able to delete the singleton instance. This can be done by 
   declaring the destructor to be private. (Note, however, that some compilers, such as Borland 5.5   
   Visual Studio 6, produce an error incorrectly if you try to declare a destructor as private.)
-• The GetInstance() method could return either a pointer or a reference to the singleton class. However, if you return a pointer, clients could potentially delete the object. You should therefore prefer returning a reference.
+• The GetInstance() method could return either a pointer or a reference to the singleton class. 
+  However, if you return a pointer, clients could potentially delete the object. You should therefore prefer returning a reference.
 *************************************************************************/
 
 // https://blog.csdn.net/janeqi1987/article/details/76147312
