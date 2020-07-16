@@ -8,7 +8,8 @@ using namespace std;
 2. Provides control over the allocation and destruction of the object.
 3. Allows support for thread-safe access to the object’s global state.
 4. Avoids polluting the global namespace.
-• You don’t want clients to be able to create new instances. This can be done by declaring the default constructor to be private, thus preventing the compiler from automatically creating it as public.
+• You don’t want clients to be able to create new instances. This can be done by declaring the default constructor to be private, 
+  thus preventing the compiler from automatically creating it as public.
 • You want the singleton to be non-copyable, to enforce that a second instance cannot be created. 
   As seen earlier, this can be done by declaring a private copy constructor and a private 
   assignment operator.
