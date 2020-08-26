@@ -12,7 +12,23 @@ using namespace std;
 2. 为什么直接assign就可以了 不要allocate and strcpy
    因为感觉字符串指针比较特别 不是local varaible 而是在read only memory
    如果是字符串数组就不可以了 就是local variable 会被free 掉
+   
+3. 这里还要注意一个compile error!!!!!!! error: cannot bind non-const lvalue reference of type ‘int*&’ to an rvalue of type ‘int*
+   就是caller pass in 的 不能是rvalue 同时& 得到的是rvalue
+   
+   void constTest(const int*& ptr) {
+      ptr = &p;
+   }
+   int main {
+      int a = 4;
+      // 错误！！！因为没有name所以是rvalue 
+      constTest(&a);
+      //正确
+      const int* a2 = new int(3);
+      constTest(a2);
+   }
 */
+
 void Correct1(const char *& pChar)
 {
     const char* pSource = "Tianyu Xia get offer";
