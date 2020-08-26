@@ -13,8 +13,11 @@ using namespace std;
    因为感觉字符串指针比较特别 不是local varaible 而是在read only memory
    如果是字符串数组就不可以了 就是local variable 会被free 掉
    
-3. 这里还要注意一个compile error!!!!!!! error: cannot bind non-const lvalue reference of type ‘int*&’ to an rvalue of type ‘int*
-   就是caller pass in 的 不能是rvalue 同时& 得到的是rvalue
+3. 这里还要注意一个compile error!!!!!!! 
+   error: cannot bind non-const lvalue reference of type ‘int*&’ to an rvalue of type ‘int* ------ caller pass in的不能是rvalue 
+   同时&符号得到的是rvalue
+   同时下面的代码也反映了pointer to const可以改变指向从而改变了值 但是有一点要特别注意你改变pointer的指向就得pass by pointer’s reference or pass by pointer to pointer
+
    
    void constTest(const int*& ptr) {
       ptr = &p;
